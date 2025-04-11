@@ -417,6 +417,7 @@ export default function ConduitScreen() {
             backgroundColor: isDarkMode ? '#121212' : '#FFFFFF',
           },
           headerTintColor: isDarkMode ? '#FFFFFF' : '#000000',
+          headerBackButtonDisplayMode: "minimal",
         }}
       />
       
