@@ -22,48 +22,13 @@ const electricianMaterials: Material[] = [
     icon: 'git-branch',
     route: '/materials/conduit',
   },
-  // {
-  //   id: '1',
-  //   title: '電気工事士試験対策',
-  //   description: '第一種・第二種電気工事士試験の対策資料',
-  //   icon: 'school',
-  //   route: '/materials/exam',
-  // },
-  // {
-  //   id: '2',
-  //   title: '配線図の基礎知識',
-  //   description: '電気配線図の読み方と書き方の基本',
-  //   icon: 'git-network',
-  //   route: '/materials/wiring',
-  // },
-  // {
-  //   id: '3',
-  //   title: '工具の使い方',
-  //   description: '電気工事で使用する工具の正しい使用方法',
-  //   icon: 'construct',
-  //   route: '/materials/tools',
-  // },
-  // {
-  //   id: '4',
-  //   title: '安全マニュアル',
-  //   description: '電気工事における安全対策と注意事項',
-  //   icon: 'shield-checkmark',
-  //   route: '/materials/safety',
-  // },
-  // {
-  //   id: '5',
-  //   title: '法令と規制',
-  //   description: '電気工事に関する法律と規制の解説',
-  //   icon: 'document-text',
-  //   route: '/materials/regulations',
-  // },
-  // {
-  //   id: '6',
-  //   title: '配線材料ガイド',
-  //   description: '様々な配線材料とその特性の解説',
-  //   icon: 'hardware-chip',
-  //   route: '/materials/materials',
-  // },
+  {
+    id: '2',
+    title: '許容電流/IV',
+    description: 'IV線の許容電流',
+    icon: 'flash',
+    route: '/materials/ampacity',
+  },
 ];
 
 export default function MaterialsScreen() {
