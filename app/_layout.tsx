@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from 'react-native';
 import { createContext, useState, useContext } from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
 
 /** テーマコンテキストの作成 */
 type ThemeContextType = {
@@ -32,6 +33,7 @@ export default function RootLayout() {
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
       <ThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
+        <StatusBar style={isDarkMode ? "light" : "dark"} />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name='+not-found' />
