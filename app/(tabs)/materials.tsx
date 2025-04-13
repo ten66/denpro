@@ -27,7 +27,7 @@ const electricianMaterials: Material[] = [
     title: '許容電流/IV',
     description: 'IV線の許容電流',
     icon: 'flash',
-    route: '/materials/ampacity',
+    route: '/materials/ampacityIV',
   },
 ];
 
