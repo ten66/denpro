@@ -8,6 +8,8 @@ import { useTheme } from '../_layout';
 type WireSize = {
   size: string;
   insulatorType: string;
+  wireType: 'solid' | 'stranded'; // 単線かより線か
+  composition?: string; // より線の場合の構成
   ampacity: {
     outdoor: number;
     indoorCounts: {
@@ -27,6 +29,11 @@ type TemperatureCorrection = {
   factor: number;
 };
 
+type WireTypeOption = {
+  id: 'solid' | 'stranded';
+  name: string;
+};
+
 // 温度補正係数
 const temperatureCorrections: TemperatureCorrection[] = [
   { temp: '20℃', factor: 1.15 },
@@ -38,11 +45,18 @@ const temperatureCorrections: TemperatureCorrection[] = [
   { temp: '50℃', factor: 0.58 },
 ];
 
+// 導体形状オプション
+const wireTypeOptions: WireTypeOption[] = [
+  { id: 'solid', name: '単線' },
+  { id: 'stranded', name: 'より線' },
+];
+
 // IV単線の許容電流データ
-const wireSizes: WireSize[] = [
+const solidWireSizes: WireSize[] = [
   {
     size: '1.2mm',
     insulatorType: 'IV',
+    wireType: 'solid',
     ampacity: {
       outdoor: 19,
       indoorCounts: {
@@ -59,6 +73,7 @@ const wireSizes: WireSize[] = [
   {
     size: '1.6mm',
     insulatorType: 'IV',
+    wireType: 'solid',
     ampacity: {
       outdoor: 27,
       indoorCounts: {
@@ -75,6 +90,7 @@ const wireSizes: WireSize[] = [
   {
     size: '2.0mm',
     insulatorType: 'IV',
+    wireType: 'solid',
     ampacity: {
       outdoor: 35,
       indoorCounts: {
@@ -91,6 +107,7 @@ const wireSizes: WireSize[] = [
   {
     size: '2.6mm',
     insulatorType: 'IV',
+    wireType: 'solid',
     ampacity: {
       outdoor: 48,
       indoorCounts: {
@@ -107,6 +124,7 @@ const wireSizes: WireSize[] = [
   {
     size: '3.2mm',
     insulatorType: 'IV',
+    wireType: 'solid',
     ampacity: {
       outdoor: 62,
       indoorCounts: {
@@ -122,17 +140,335 @@ const wireSizes: WireSize[] = [
   },
 ];
 
+// IVより線の許容電流データ
+const strandedWireSizes: WireSize[] = [
+  {
+    size: '0.9mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '7本/0.4mm',
+    ampacity: {
+      outdoor: 17,
+      indoorCounts: {
+        belowThree: 11,
+        four: 10,
+        fiveToSix: 9,
+        sevenToFifteen: 8,
+        sixteenToForty: 7,
+        fortyOneToSixty: 6,
+        aboveSixty: 5,
+      }
+    }
+  },
+  {
+    size: '1.25mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '7本/0.45mm',
+    ampacity: {
+      outdoor: 19,
+      indoorCounts: {
+        belowThree: 13,
+        four: 11,
+        fiveToSix: 10,
+        sevenToFifteen: 9,
+        sixteenToForty: 8,
+        fortyOneToSixty: 7,
+        aboveSixty: 6,
+      }
+    }
+  },
+  {
+    size: '2mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '7本/0.6mm',
+    ampacity: {
+      outdoor: 27,
+      indoorCounts: {
+        belowThree: 18,
+        four: 17,
+        fiveToSix: 15,
+        sevenToFifteen: 13,
+        sixteenToForty: 11,
+        fortyOneToSixty: 10,
+        aboveSixty: 9,
+      }
+    }
+  },
+  {
+    size: '3.5mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '7本/0.8mm',
+    ampacity: {
+      outdoor: 37,
+      indoorCounts: {
+        belowThree: 25,
+        four: 23,
+        fiveToSix: 20,
+        sevenToFifteen: 18,
+        sixteenToForty: 15,
+        fortyOneToSixty: 14,
+        aboveSixty: 12,
+      }
+    }
+  },
+  {
+    size: '5.5mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '7本/1.0mm',
+    ampacity: {
+      outdoor: 49,
+      indoorCounts: {
+        belowThree: 34,
+        four: 31,
+        fiveToSix: 27,
+        sevenToFifteen: 24,
+        sixteenToForty: 21,
+        fortyOneToSixty: 19,
+        aboveSixty: 16,
+      }
+    }
+  },
+  {
+    size: '8mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '7本/1.2mm',
+    ampacity: {
+      outdoor: 61,
+      indoorCounts: {
+        belowThree: 42,
+        four: 38,
+        fiveToSix: 34,
+        sevenToFifteen: 30,
+        sixteenToForty: 26,
+        fortyOneToSixty: 24,
+        aboveSixty: 21,
+      }
+    }
+  },
+  {
+    size: '14mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '7本/1.6mm',
+    ampacity: {
+      outdoor: 88,
+      indoorCounts: {
+        belowThree: 61,
+        four: 55,
+        fiveToSix: 49,
+        sevenToFifteen: 43,
+        sixteenToForty: 38,
+        fortyOneToSixty: 34,
+        aboveSixty: 30,
+      }
+    }
+  },
+  {
+    size: '22mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '7本/2.0mm',
+    ampacity: {
+      outdoor: 115,
+      indoorCounts: {
+        belowThree: 80,
+        four: 72,
+        fiveToSix: 64,
+        sevenToFifteen: 56,
+        sixteenToForty: 49,
+        fortyOneToSixty: 45,
+        aboveSixty: 39,
+      }
+    }
+  },
+  {
+    size: '38mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '7本/2.6mm',
+    ampacity: {
+      outdoor: 162,
+      indoorCounts: {
+        belowThree: 113,
+        four: 102,
+        fiveToSix: 90,
+        sevenToFifteen: 79,
+        sixteenToForty: 70,
+        fortyOneToSixty: 63,
+        aboveSixty: 55,
+      }
+    }
+  },
+  {
+    size: '60mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '19本/2.0mm',
+    ampacity: {
+      outdoor: 217,
+      indoorCounts: {
+        belowThree: 152,
+        four: 136,
+        fiveToSix: 121,
+        sevenToFifteen: 106,
+        sixteenToForty: 93,
+        fortyOneToSixty: 85,
+        aboveSixty: 74,
+      }
+    }
+  },
+  {
+    size: '100mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '19本/2.6mm',
+    ampacity: {
+      outdoor: 298,
+      indoorCounts: {
+        belowThree: 208,
+        four: 187,
+        fiveToSix: 167,
+        sevenToFifteen: 146,
+        sixteenToForty: 128,
+        fortyOneToSixty: 116,
+        aboveSixty: 101,
+      }
+    }
+  },
+  {
+    size: '150mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '37本/2.3mm',
+    ampacity: {
+      outdoor: 395,
+      indoorCounts: {
+        belowThree: 276,
+        four: 249,
+        fiveToSix: 221,
+        sevenToFifteen: 193,  
+        sixteenToForty: 170,
+        fortyOneToSixty: 154,
+        aboveSixty: 134,
+      }
+    }
+  },
+  {
+    size: '200mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '37本/2.6mm',
+    ampacity: {
+      outdoor: 469,
+      indoorCounts: {
+        belowThree: 328,
+        four: 295,
+        fiveToSix: 262,
+        sevenToFifteen: 230,
+        sixteenToForty: 202,
+        fortyOneToSixty: 183,
+        aboveSixty: 159,
+      }
+    }
+  },
+  {
+    size: '250mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '61本/2.3mm',
+    ampacity: {
+      outdoor: 556,
+      indoorCounts: {
+        belowThree: 389,
+        four: 350,
+        fiveToSix: 311,
+        sevenToFifteen: 272,    
+        sixteenToForty: 239,
+        fortyOneToSixty: 217,
+        aboveSixty: 189,
+      }
+    }
+  },
+  {
+    size: '325mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '61本/2.6mm',
+    ampacity: {
+      outdoor: 650,
+      indoorCounts: {
+        belowThree: 455,
+        four: 409,
+        fiveToSix: 364,
+        sevenToFifteen: 318, 
+        sixteenToForty: 280,
+        fortyOneToSixty: 254,
+        aboveSixty: 221,
+      }
+    }
+  },
+  {
+    size: '400mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '61本/2.9mm',
+    ampacity: {
+      outdoor: 745,
+      indoorCounts: {
+        belowThree: 521,
+        four: 469,
+        fiveToSix: 417,
+        sevenToFifteen: 365,
+        sixteenToForty: 320,
+        fortyOneToSixty: 291,
+        aboveSixty: 253,
+      }
+    }
+  },
+  {
+    size: '500mm²',
+    insulatorType: 'IV',
+    wireType: 'stranded',
+    composition: '61本/3.2mm',
+    ampacity: { 
+      outdoor: 842,
+      indoorCounts: {
+        belowThree: 589,
+        four: 530,
+        fiveToSix: 471,
+        sevenToFifteen: 412,  
+        sixteenToForty: 362,
+        fortyOneToSixty: 328,
+        aboveSixty: 286,
+      }
+    }
+  },
+];
+
 export default function AmpacityScreen() {
   const { isDarkMode } = useTheme();
+  const [selectedWireType, setSelectedWireType] = useState<'solid' | 'stranded'>('solid');
   const [selectedSize, setSelectedSize] = useState<WireSize | null>(null);
   const [selectedTemperature, setSelectedTemperature] = useState<TemperatureCorrection>(
     temperatureCorrections.find(t => t.temp === '30℃')!
   );
-  
+  const [isWireTypeExpanded, setIsWireTypeExpanded] = useState(false);
+  const [isTemperatureExpanded, setIsTemperatureExpanded] = useState(false);
+   
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const cardAnimation = useRef(new Animated.Value(0)).current;
   const tempAnimation = useRef(new Animated.Value(1)).current;
   const detailAnimation = useRef(new Animated.Value(0)).current;
+  const wireTypeAnimation = useRef(new Animated.Value(1)).current;
+  const wireTypeExpandAnimation = useRef(new Animated.Value(0)).current;
+  const temperatureExpandAnimation = useRef(new Animated.Value(0)).current;
+
+  // 現在選択されている導体タイプに基づいてデータを取得
+  const currentWireSizes = selectedWireType === 'solid' ? solidWireSizes : strandedWireSizes;
 
   useEffect(() => {
     // 初期アニメーション
@@ -172,6 +508,42 @@ export default function AmpacityScreen() {
     ]).start();
   }, [selectedTemperature]);
 
+  useEffect(() => {
+    // 導体タイプ切替アニメーション
+    setSelectedSize(null);
+    Animated.sequence([
+      Animated.timing(wireTypeAnimation, {
+        toValue: 0.95,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.spring(wireTypeAnimation, {
+        toValue: 1,
+        friction: 4,
+        tension: 40,
+        useNativeDriver: true,
+      })
+    ]).start();
+  }, [selectedWireType]);
+
+  useEffect(() => {
+    // 導体タイプの折りたたみアニメーション
+    Animated.timing(wireTypeExpandAnimation, {
+      toValue: isWireTypeExpanded ? 1 : 0,
+      duration: 300,
+      useNativeDriver: false, // heightの変更にはfalseが必要
+    }).start();
+  }, [isWireTypeExpanded]);
+
+  useEffect(() => {
+    // 温度選択の折りたたみアニメーション
+    Animated.timing(temperatureExpandAnimation, {
+      toValue: isTemperatureExpanded ? 1 : 0,
+      duration: 300,
+      useNativeDriver: false, // heightの変更にはfalseが必要
+    }).start();
+  }, [isTemperatureExpanded]);
+
   const handleSizeSelect = (size: WireSize) => {
     if (selectedSize?.size === size.size) {
       Animated.timing(detailAnimation, {
@@ -188,6 +560,12 @@ export default function AmpacityScreen() {
 
   const handleTemperatureSelect = (temp: TemperatureCorrection) => {
     setSelectedTemperature(temp);
+    setIsTemperatureExpanded(false); // 選択後に折りたたむ
+  };
+
+  const handleWireTypeSelect = (wireType: 'solid' | 'stranded') => {
+    setSelectedWireType(wireType);
+    setIsWireTypeExpanded(false); // 選択後に折りたたむ
   };
 
   // 補正係数を適用した電流値を計算する関数
@@ -249,10 +627,11 @@ export default function AmpacityScreen() {
             </View>
             <View style={styles.titleContainer}>
               <Text style={[styles.sizeTitle, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
-                導体径: {item.size}
+                {item.wireType === 'solid' ? '導体径: ' : '公称断面積: '}
+                {item.size}
               </Text>
               <Text style={[styles.sizeSubtitle, { color: isDarkMode ? '#AAAAAA' : '#666666' }]}>
-                {item.insulatorType} 単線（絶縁体許容温度: 60℃）
+                {item.insulatorType} {item.wireType === 'solid' ? '単線' : `より線 (${item.composition})`}（絶縁体許容温度: 60℃）
               </Text>
             </View>
             <Ionicons 
@@ -290,7 +669,7 @@ export default function AmpacityScreen() {
                 </View>
               </View>
               
-              <Text style={[styles.sectionTitle, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
+              <Text style={[styles.ampacitySectionTitle, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
                 がいし引き配線
               </Text>
               
@@ -300,7 +679,7 @@ export default function AmpacityScreen() {
                 </Text>
               </View>
               
-              <Text style={[styles.sectionTitle, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
+              <Text style={[styles.ampacitySectionTitle, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
                 IV電線を同一の管、線びまたはダクト内に収める場合の電線数
               </Text>
               
@@ -398,23 +777,116 @@ export default function AmpacityScreen() {
         ]}
       >
         
+        {/* 導体形状選択セクション */}
+        <TouchableOpacity 
+          style={styles.sectionHeader}
+          onPress={() => setIsWireTypeExpanded(!isWireTypeExpanded)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.sectionHeaderContent}>
+            <View style={styles.sectionInfo}>
+              <Text style={[styles.sectionTitle, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
+                導体形状
+              </Text>
+              <Text style={[styles.sectionValue, { color: isDarkMode ? '#4FC3F7' : '#2196F3' }]}>
+                {selectedWireType === 'solid' ? '単線' : 'より線'}
+              </Text>
+            </View>
+            <Ionicons 
+              name={isWireTypeExpanded ? 'chevron-up' : 'chevron-down'} 
+              size={20} 
+              color={isDarkMode ? '#AAAAAA' : '#666666'} 
+            />
+          </View>
+        </TouchableOpacity>
+        
+        <Animated.View 
+          style={[
+            styles.wireTypeContainer,
+            {
+              height: wireTypeExpandAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 80] // 最大高さを調整
+              }),
+              opacity: wireTypeExpandAnimation,
+              overflow: 'hidden',
+            }
+          ]}
+        >
+          <View style={styles.wireTypeButtonsContainer}>
+            {wireTypeOptions.map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.optionButton,
+                  {
+                    backgroundColor: selectedWireType === option.id 
+                      ? isDarkMode ? '#4FC3F7' : '#2196F3'
+                      : isDarkMode ? '#2A2A2A' : '#F0F0F0',
+                    minWidth: 80,
+                  }
+                ]}
+                onPress={() => handleWireTypeSelect(option.id)}
+              >
+                <Text 
+                  style={[
+                    styles.optionButtonText, 
+                    { 
+                      color: selectedWireType === option.id 
+                        ? '#FFFFFF' 
+                        : isDarkMode ? '#FFFFFF' : '#000000' 
+                    }
+                  ]}
+                >
+                  {option.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Animated.View>
+        
+        {/* 周囲温度選択セクション */}
+        <TouchableOpacity 
+          style={styles.sectionHeader}
+          onPress={() => setIsTemperatureExpanded(!isTemperatureExpanded)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.sectionHeaderContent}>
+            <View style={styles.sectionInfo}>
+              <Text style={[styles.sectionTitle, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
+                周囲温度
+              </Text>
+              <Text style={[styles.sectionValue, { color: isDarkMode ? '#4FC3F7' : '#2196F3' }]}>
+                {selectedTemperature.temp}（補正係数: {selectedTemperature.factor}）
+              </Text>
+            </View>
+            <Ionicons 
+              name={isTemperatureExpanded ? 'chevron-up' : 'chevron-down'} 
+              size={20} 
+              color={isDarkMode ? '#AAAAAA' : '#666666'} 
+            />
+          </View>
+        </TouchableOpacity>
+        
         <Animated.View 
           style={[
             styles.temperatureContainer,
             {
-              transform: [{ scale: tempAnimation }]
+              height: temperatureExpandAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 80] // 最大高さを調整
+              }),
+              opacity: temperatureExpandAnimation,
+              overflow: 'hidden',
             }
           ]}
         >
-          <Text style={[styles.temperatureTitle, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
-            周囲温度を選択:
-          </Text>
           <View style={styles.temperatureButtonsContainer}>
             {temperatureCorrections.map((temp) => (
               <TouchableOpacity
                 key={temp.temp}
                 style={[
-                  styles.temperatureButton,
+                  styles.optionButton,
                   {
                     backgroundColor: selectedTemperature.temp === temp.temp 
                       ? isDarkMode ? '#4FC3F7' : '#2196F3'
@@ -425,7 +897,7 @@ export default function AmpacityScreen() {
               >
                 <Text 
                   style={[
-                    styles.temperatureButtonText, 
+                    styles.optionButtonText, 
                     { 
                       color: selectedTemperature.temp === temp.temp 
                         ? '#FFFFFF' 
@@ -442,7 +914,7 @@ export default function AmpacityScreen() {
       </Animated.View>
       
       <FlatList
-        data={wireSizes}
+        data={currentWireSizes}
         renderItem={renderSizeCard}
         keyExtractor={item => item.size}
         contentContainerStyle={styles.listContainer}
@@ -458,6 +930,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 20,
+    paddingTop: 10,
     paddingBottom: 10,
   },
   title: {
@@ -469,29 +942,54 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 16,
   },
-  temperatureContainer: {
-    marginTop: 8,
-    marginBottom: 8,
+  sectionHeader: {
+    paddingVertical: 6,
+    marginTop: 4,
+    borderRadius: 8,
   },
-  temperatureTitle: {
+  sectionHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  sectionInfo: {
+    flex: 1,
+  },
+  sectionTitle: {
     fontSize: 15,
     fontWeight: '600',
+  },
+  sectionValue: {
+    fontSize: 14,
+    marginTop: 2,
+  },
+  wireTypeContainer: {
+    marginBottom: 8,
+  },
+  wireTypeButtonsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingTop: 8,
+  },
+  temperatureContainer: {
     marginBottom: 8,
   },
   temperatureButtonsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    paddingTop: 8,
   },
-  temperatureButton: {
+  optionButton: {
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 20,
     marginRight: 8,
     marginBottom: 8,
   },
-  temperatureButtonText: {
+  optionButtonText: {
     fontSize: 13,
     fontWeight: '500',
+    textAlign: 'center',
   },
   listContainer: {
     padding: 12,
@@ -545,7 +1043,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
   },
-  sectionTitle: {
+  ampacitySectionTitle: {
     fontSize: 15,
     fontWeight: '600',
     marginBottom: 12,
