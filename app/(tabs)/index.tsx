@@ -1,171 +1,164 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { useState, useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Animated, Image } from 'react-native';
 import { Link } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../_layout';
 
-/** ホーム画面 */
-export default function HomeScreen() {
-  const { isDarkMode } = useTheme();
-  
-  // アニメーション用のAnnimated.Value
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const slideAnim = React.useRef(new Animated.Value(50)).current;
-  
-  useEffect(() => {
-    // 画面表示時のアニメーション
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      })
-    ]).start();
-  }, []);
+// 資料データの型定義
+type Material = {
+  id: string;
+  title: string;
+  description: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  route: string;
+};
 
-  // カテゴリカード
-  const CategoryCard = ({ title, icon, color, route }: 
-    { title: string; icon: keyof typeof Ionicons.glyphMap; color: string; route: string }) => {
+// 電気工事士関連の資料データ
+const electricianMaterials: Material[] = [
+  {
+    id: '1',
+    title: '電線管サイズ表',
+    description: '各種電線管の規格とケーブル収容本数',
+    icon: 'git-branch',
+    route: '/materials/conduit',
+  },
+  {
+    id: '2',
+    title: '許容電流/IV',
+    description: 'IV線の許容電流',
+    icon: 'flash',
+    route: '/materials/ampacityIV',
+  },
+];
+
+export default function MaterialsScreen() {
+  const { isDarkMode } = useTheme();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [materials] = useState(electricianMaterials);
+  const [scrollY] = useState(new Animated.Value(0));
+
+  // アニメーション値
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [120, 70],
+    extrapolate: 'clamp',
+  });
+
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 60, 100],
+    outputRange: [1, 0.5, 0],
+    extrapolate: 'clamp',
+  });
+
+  const renderItem = ({ item }: { item: Material }) => {
+    const scaleAnim = new Animated.Value(1);
+    
+    const onPressIn = () => {
+      Animated.spring(scaleAnim, {
+        toValue: 0.95,
+        useNativeDriver: true,
+      }).start();
+    };
+    
+    const onPressOut = () => {
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 4,
+        tension: 40,
+        useNativeDriver: true,
+      }).start();
+    };
+
     return (
-      <Link href={route as any} asChild>
-        <TouchableOpacity style={[
-          styles.categoryCard,
-          { backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF' }
-        ]}>
-          <View style={[styles.iconCircle, { backgroundColor: `${color}20` }]}>
-            <Ionicons name={icon} size={28} color={color} />
-          </View>
-          <Text style={[
-            styles.categoryTitle,
-            { color: isDarkMode ? '#FFFFFF' : '#000000' }
-          ]}>
-            {title}
-          </Text>
+      <Link href={item.route as any} asChild>
+        <TouchableOpacity
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          activeOpacity={0.7}
+        >
+          <Animated.View
+            style={[
+              styles.card,
+              {
+                backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
+                transform: [{ scale: scaleAnim }]
+              }
+            ]}
+          >
+            <View style={styles.iconContainer}>
+              <Ionicons 
+                name={item.icon} 
+                size={28} 
+                color={isDarkMode ? '#4FC3F7' : '#2196F3'} 
+              />
+            </View>
+            <View style={styles.contentContainer}>
+              <Text style={[styles.title, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
+                {item.title}
+              </Text>
+              <Text style={[styles.description, { color: isDarkMode ? '#AAAAAA' : '#666666' }]}>
+                {item.description}
+              </Text>
+            </View>
+            <Ionicons 
+              name="chevron-forward" 
+              size={20} 
+              color={isDarkMode ? '#777777' : '#CCCCCC'} 
+            />
+          </Animated.View>
         </TouchableOpacity>
       </Link>
     );
   };
 
-  const FeaturedCard = ({ title, description, bgColor, image }: 
-    { title: string; description: string; bgColor: string; image: any }) => {
-    return (
-      <TouchableOpacity 
+  return (
+    <View style={[styles.container, { backgroundColor: isDarkMode ? '#121212' : '#F2F2F7' }]}>
+      <Animated.View 
         style={[
-          styles.featuredCard,
-          { backgroundColor: bgColor }
+          styles.header, 
+          { 
+            height: headerHeight,
+            backgroundColor: isDarkMode ? '#121212' : '#F2F2F7',
+          }
         ]}
       >
-        <View style={styles.featuredContent}>
-          <Text style={styles.featuredTitle}>{title}</Text>
-          <Text style={styles.featuredDescription}>{description}</Text>
-          <View style={styles.featuredButton}>
-            <Text style={styles.featuredButtonText}>詳細を見る</Text>
-          </View>
-        </View>
-        {image && (
-          <View style={styles.imageContainer}>
-            <Ionicons name={image} size={80} color="rgba(255,255,255,0.8)" />
-          </View>
+        <Animated.Text 
+          style={[
+            styles.headerTitle, 
+            { 
+              opacity: headerOpacity,
+              color: isDarkMode ? '#FFFFFF' : '#000000',
+            }
+          ]}
+        >
+          電気工事士資料
+        </Animated.Text>
+        <Animated.Text 
+          style={[
+            styles.headerSubtitle, 
+            { 
+              opacity: headerOpacity,
+              color: isDarkMode ? '#AAAAAA' : '#666666',
+            }
+          ]}
+        >
+          工事に役立つ資料を探す
+        </Animated.Text>
+      </Animated.View>
+
+      <FlatList
+        data={materials}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
         )}
-      </TouchableOpacity>
-    );
-  };
-
-  return (
-    <ScrollView 
-      style={[
-        styles.container,
-        { backgroundColor: isDarkMode ? '#121212' : '#F2F2F7' }
-      ]}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      <Animated.View style={[
-        styles.header,
-        { 
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }]
-        }
-      ]}>
-        <Text style={[
-          styles.greeting,
-          { color: isDarkMode ? '#FFFFFF' : '#000000' }
-        ]}>
-          こんにちは
-        </Text>
-        <Text style={[
-          styles.subtitle,
-          { color: isDarkMode ? '#AAAAAA' : '#666666' }
-        ]}>
-          電気工事士サポートアプリへようこそ
-        </Text>
-      </Animated.View>
-
-      <Animated.View style={{
-        opacity: fadeAnim,
-        transform: [{ translateY: slideAnim }]
-      }}>
-        <FeaturedCard 
-          title="第二種電気工事士 筆記試験対策" 
-          description="最新の試験情報と学習方法" 
-          bgColor="#4361EE"
-          image="school"
-        />
-      </Animated.View>
-
-      <Text style={[
-        styles.sectionTitle,
-        { color: isDarkMode ? '#FFFFFF' : '#000000' }
-      ]}>
-        カテゴリー
-      </Text>
-
-      <View style={styles.categoriesContainer}>
-        <CategoryCard 
-          title="資料一覧" 
-          icon="document-text" 
-          color="#4FC3F7"
-          route="/materials"
-        />
-        <CategoryCard 
-          title="実技練習" 
-          icon="construct" 
-          color="#FF9800"
-          route="/practice"
-        />
-        <CategoryCard 
-          title="法令集" 
-          icon="book" 
-          color="#9C27B0"
-          route="/laws"
-        />
-        <CategoryCard 
-          title="設定" 
-          icon="settings" 
-          color="#4CAF50"
-          route="/settings"
-        />
-      </View>
-
-      <Text style={[
-        styles.sectionTitle,
-        { color: isDarkMode ? '#FFFFFF' : '#000000' }
-      ]}>
-        おすすめコンテンツ
-      </Text>
-
-      <FeaturedCard 
-        title="作業工具の基本" 
-        description="電気工事で使う工具の使い方" 
-        bgColor="#FF5252"
-        image="construct"
+        scrollEventThrottle={16}
       />
-    </ScrollView>
+    </View>
   );
 }
 
@@ -173,36 +166,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  contentContainer: {
-    padding: 20,
-  },
   header: {
-    marginBottom: 24,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    justifyContent: 'center',
   },
-  greeting: {
+  headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
   },
-  subtitle: {
+  headerSubtitle: {
     fontSize: 16,
-    marginTop: 4,
+    marginTop: 5,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginTop: 30,
-    marginBottom: 16,
-  },
-  categoriesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  categoryCard: {
-    width: '48%',
+  listContainer: {
     padding: 16,
-    borderRadius: 12,
+    paddingTop: 0,
+  },
+  card: {
+    flexDirection: 'row',
+    padding: 16,
     marginBottom: 12,
+    borderRadius: 12,
     alignItems: 'center',
     shadowColor: "#000",
     shadowOffset: {
@@ -213,55 +198,24 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  iconCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(33, 150, 243, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginRight: 16,
   },
-  categoryTitle: {
+  contentContainer: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  description: {
     fontSize: 14,
-    fontWeight: '500',
+    marginTop: 4,
   },
-  featuredCard: {
-    borderRadius: 16,
-    padding: 20,
-    height: 180,
-    marginVertical: 10,
-    overflow: 'hidden',
-    flexDirection: 'row',
-  },
-  featuredContent: {
-    width: '60%',
-  },
-  featuredTitle: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  featuredDescription: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: 14,
-    marginBottom: 20,
-  },
-  featuredButton: {
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-  },
-  featuredButtonText: {
-    color: 'white',
-    fontWeight: '500',
-  },
-  imageContainer: {
-    position: 'absolute',
-    right: 10,
-    bottom: 20,
-    opacity: 0.8,
-  },
-});
+}); 

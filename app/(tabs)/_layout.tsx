@@ -22,15 +22,6 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "ホーム",
-          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="materials"
-        options={{
           title: "資料一覧",
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <Ionicons name="document-text" size={size} color={color} />
