@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, Switch, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, Switch, StyleSheet, TouchableOpacity, Animated, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../_layout';
+import { router } from 'expo-router';
 
 type SettingItem = {
   id: string;
@@ -36,6 +37,15 @@ export default function SettingsScreen() {
     toggleTheme();
   };
 
+  // 未実装機能用の暫定ハンドラ
+  const handleNotYetImplemented = (feature: string) => {
+    Alert.alert(
+      '開発中の機能',
+      `${feature}機能は現在開発中です。今しばらくお待ちください。`,
+      [{ text: 'OK', style: 'default' }]
+    );
+  };
+
   const rotate = animation.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '180deg']
@@ -59,28 +69,13 @@ export default function SettingsScreen() {
       onPress: handleThemeToggle,
     },
     {
-      id: 'notifications',
-      title: '通知',
-      description: 'プッシュ通知の設定',
-      icon: 'notifications',
-      iconColor: '#F06292',
+      id: 'disclaimer',
+      title: '免責事項',
+      description: 'アプリ利用に関する免責事項',
+      icon: 'shield-checkmark',
+      iconColor: '#FF9800',
       type: 'link',
-    },
-    {
-      id: 'account',
-      title: 'アカウント',
-      description: 'アカウント情報の管理',
-      icon: 'person-circle',
-      iconColor: '#4FC3F7',
-      type: 'link',
-    },
-    {
-      id: 'storage',
-      title: 'ストレージ',
-      description: 'ダウンロードと保存の設定',
-      icon: 'cloud-download',
-      iconColor: '#81C784',
-      type: 'link',
+      onPress: () => router.push('/settings/disclaimer'),
     },
     {
       id: 'about',
@@ -89,6 +84,7 @@ export default function SettingsScreen() {
       icon: 'information-circle',
       iconColor: '#7986CB',
       type: 'link',
+      onPress: () => handleNotYetImplemented('アプリ情報'),
     },
   ];
 
