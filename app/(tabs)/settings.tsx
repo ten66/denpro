@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Switch, StyleSheet, TouchableOpacity, Animated, Alert } from 'react-native';
+import { View, Text, Switch, StyleSheet, TouchableOpacity, Animated, Alert, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../_layout';
 import { router } from 'expo-router';
@@ -76,6 +76,24 @@ export default function SettingsScreen() {
       iconColor: '#FF9800',
       type: 'link',
       onPress: () => router.push('/settings/disclaimer'),
+    },
+    {
+      id: 'contact',
+      title: 'お問合せ',
+      description: 'バグ報告や機能リクエスト',
+      icon: 'mail',
+      iconColor: '#2196F3',
+      type: 'link',
+      onPress: () => {
+        const url = 'https://forms.gle/chswttw68dP9XPuR7';
+        Linking.canOpenURL(url).then(supported => {
+          if (supported) {
+            Linking.openURL(url);
+          } else {
+            Alert.alert('エラー', 'リンクを開けませんでした');
+          }
+        });
+      },
     },
     {
       id: 'about',
