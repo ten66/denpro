@@ -1,10 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert } from 'react-native';
 import { Stack } from 'expo-router';
 import { useTheme } from '../_layout';
 
 export default function DisclaimerScreen() {
   const { isDarkMode } = useTheme();
+  
+  const handleOpenContactForm = () => {
+    const url = 'https://forms.gle/chswttw68dP9XPuR7';
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        Alert.alert('エラー', 'リンクを開けませんでした');
+      }
+    });
+  };
 
   return (
     <View style={[
@@ -39,13 +50,29 @@ export default function DisclaimerScreen() {
             万が一、本コンテンツの情報に基づいて生じたトラブルや損害等につきましては、一切の責任を負いかねますので、あらかじめご了承ください。
           </Text>
           
-          <Text style={[
-            styles.disclaimerText,
-            { color: isDarkMode ? '#FFFFFF' : '#000000' },
-            styles.paragraph
-          ]}>
-            内容に関してご不明な点やお気づきの点がございましたら、お手数ですがお問い合わせいただけますと幸いです。より良い情報提供のため、ご協力をよろしくお願いいたします。
-          </Text>
+          <View style={styles.paragraph}>
+            <Text style={[
+              styles.disclaimerText,
+              { color: isDarkMode ? '#FFFFFF' : '#000000' }
+            ]}>
+              内容に関してご不明な点やお気づきの点がございましたら、
+            </Text>
+            <TouchableOpacity onPress={handleOpenContactForm}>
+              <Text style={[
+                styles.disclaimerText,
+                styles.linkText,
+                { color: isDarkMode ? '#4dabf7' : '#0070f3' }
+              ]}>
+                お問合せフォーム
+              </Text>
+            </TouchableOpacity>
+            <Text style={[
+              styles.disclaimerText,
+              { color: isDarkMode ? '#FFFFFF' : '#000000' }
+            ]}>
+              よりお問い合わせいただけますと幸いです。より良い情報提供のため、ご協力をよろしくお願いいたします。
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -69,5 +96,9 @@ const styles = StyleSheet.create({
   },
   paragraph: {
     marginTop: 16,
+  },
+  linkText: {
+    textDecorationLine: 'underline',
+    fontWeight: '600',
   }
 }); 
