@@ -62,7 +62,7 @@ export default function CalculationsScreen() {
         <TouchableOpacity style={styles.card}>
           <Text style={styles.cardTitle}>電圧降下計算</Text>
           <Text style={styles.cardDescription}>
-            電線の長さ、電流、電線サイズに基づいて電圧降下を計算します。
+            電線の長さ、電流、電線の断面積に基づいて電圧降下を計算します。
           </Text>
           <View style={styles.linkRow}>
             <Text style={styles.linkText}>計算する</Text>
