@@ -13,12 +13,6 @@ export default function CalculationsScreen() {
       backgroundColor: isDarkMode ? '#121212' : '#f5f5f5',
       padding: 16,
     },
-    title: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      marginBottom: 16,
-      color: isDarkMode ? '#fff' : '#000',
-    },
     card: {
       backgroundColor: isDarkMode ? '#1E1E1E' : '#fff',
       borderRadius: 12,
@@ -56,13 +50,24 @@ export default function CalculationsScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>電気工事士計算</Text>
-      
       <Link href="/calculations/voltage-drop" asChild>
         <TouchableOpacity style={styles.card}>
-          <Text style={styles.cardTitle}>電圧降下計算</Text>
+          <Text style={styles.cardTitle}>電圧降下</Text>
           <Text style={styles.cardDescription}>
             電線の長さ、電流、電線の断面積に基づいて電圧降下を計算します。
+          </Text>
+          <View style={styles.linkRow}>
+            <Text style={styles.linkText}>計算する</Text>
+            <Ionicons name="chevron-forward" size={16} color={isDarkMode ? '#4dabf7' : '#0070f3'} />
+          </View>
+        </TouchableOpacity>
+      </Link>
+
+      <Link href="/calculations/wire-size" asChild>
+        <TouchableOpacity style={styles.card}>
+          <Text style={styles.cardTitle}>電線断面積</Text>
+          <Text style={styles.cardDescription}>
+            電線の長さ、電流、電圧降下に基づいて必要な電線断面積を計算します。
           </Text>
           <View style={styles.linkRow}>
             <Text style={styles.linkText}>計算する</Text>
