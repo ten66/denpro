@@ -10,6 +10,7 @@ type WireSize = {
   insulatorType: string;
   wireType: 'solid' | 'stranded'; // 単線かより線か
   composition?: string; // より線の場合の構成
+  isRecommended: boolean; // 一般配線に推奨されるかどうか
   ampacity: {
     outdoor: number;
     indoorCounts: {
@@ -57,6 +58,7 @@ const solidWireSizes: WireSize[] = [
     size: '1.2mm',
     insulatorType: 'IV',
     wireType: 'solid',
+    isRecommended: false, // 1.2mm以下は一般配線に推奨されない
     ampacity: {
       outdoor: 19,
       indoorCounts: {
@@ -74,6 +76,7 @@ const solidWireSizes: WireSize[] = [
     size: '1.6mm',
     insulatorType: 'IV',
     wireType: 'solid',
+    isRecommended: true,
     ampacity: {
       outdoor: 27,
       indoorCounts: {
@@ -91,6 +94,7 @@ const solidWireSizes: WireSize[] = [
     size: '2.0mm',
     insulatorType: 'IV',
     wireType: 'solid',
+    isRecommended: true,
     ampacity: {
       outdoor: 35,
       indoorCounts: {
@@ -108,6 +112,7 @@ const solidWireSizes: WireSize[] = [
     size: '2.6mm',
     insulatorType: 'IV',
     wireType: 'solid',
+    isRecommended: true,
     ampacity: {
       outdoor: 48,
       indoorCounts: {
@@ -125,6 +130,7 @@ const solidWireSizes: WireSize[] = [
     size: '3.2mm',
     insulatorType: 'IV',
     wireType: 'solid',
+    isRecommended: true,
     ampacity: {
       outdoor: 62,
       indoorCounts: {
@@ -147,6 +153,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '7本/0.4mm',
+    isRecommended: false, // 1.25mm²以下は一般配線に推奨されない
     ampacity: {
       outdoor: 17,
       indoorCounts: {
@@ -165,6 +172,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '7本/0.45mm',
+    isRecommended: false, // 1.25mm²以下は一般配線に推奨されない
     ampacity: {
       outdoor: 19,
       indoorCounts: {
@@ -183,6 +191,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '7本/0.6mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 27,
       indoorCounts: {
@@ -201,6 +210,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '7本/0.8mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 37,
       indoorCounts: {
@@ -219,6 +229,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '7本/1.0mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 49,
       indoorCounts: {
@@ -237,6 +248,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '7本/1.2mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 61,
       indoorCounts: {
@@ -255,6 +267,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '7本/1.6mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 88,
       indoorCounts: {
@@ -273,6 +286,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '7本/2.0mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 115,
       indoorCounts: {
@@ -291,6 +305,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '7本/2.6mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 162,
       indoorCounts: {
@@ -309,6 +324,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '19本/2.0mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 217,
       indoorCounts: {
@@ -327,6 +343,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '19本/2.6mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 298,
       indoorCounts: {
@@ -345,6 +362,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '37本/2.3mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 395,
       indoorCounts: {
@@ -363,6 +381,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '37本/2.6mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 469,
       indoorCounts: {
@@ -381,6 +400,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '61本/2.3mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 556,
       indoorCounts: {
@@ -399,6 +419,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '61本/2.6mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 650,
       indoorCounts: {
@@ -417,6 +438,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '61本/2.9mm',
+    isRecommended: true,
     ampacity: {
       outdoor: 745,
       indoorCounts: {
@@ -435,6 +457,7 @@ const strandedWireSizes: WireSize[] = [
     insulatorType: 'IV',
     wireType: 'stranded',
     composition: '61本/3.2mm',
+    isRecommended: true,
     ampacity: { 
       outdoor: 842,
       indoorCounts: {
@@ -614,11 +637,14 @@ export default function AmpacityScreen() {
                 ? isDarkMode ? '#4FC3F7' : '#2196F3' 
                 : isDarkMode ? '#2A2A2A' : '#E0E0E0',
               transform: [{ scale: cardScale }]
-            }
+            },
+            !item.isRecommended && styles.notRecommendedCard
           ]}
         >
           <View style={styles.sizeHeader}>
-            <View style={[styles.iconContainer, { backgroundColor: isSelected ? '#2196F380' : '#2196F320' }]}>
+            <View style={[styles.iconContainer, { 
+              backgroundColor: isSelected ? '#2196F380' : '#2196F320',
+            }]}>
               <Ionicons 
                 name="flash" 
                 size={24} 
@@ -633,6 +659,19 @@ export default function AmpacityScreen() {
               <Text style={[styles.sizeSubtitle, { color: isDarkMode ? '#AAAAAA' : '#666666' }]}>
                 {item.insulatorType} {item.wireType === 'solid' ? '単線' : `より線 (${item.composition})`}（絶縁体許容温度: 60℃）
               </Text>
+              
+              {!item.isRecommended && (
+                <View style={styles.warningContainer}>
+                  <Ionicons 
+                    name="warning" 
+                    size={16} 
+                    color={isDarkMode ? '#FFA000' : '#FF6F00'} 
+                  />
+                  <Text style={[styles.warningText, { color: isDarkMode ? '#FFA000' : '#FF6F00' }]}>
+                    一般配線には推奨されません
+                  </Text>
+                </View>
+              )}
             </View>
             <Ionicons 
               name={isSelected ? 'chevron-up' : 'chevron-down'} 
@@ -776,6 +815,24 @@ export default function AmpacityScreen() {
           }
         ]}
       >
+        {/* 内線規程の注記 */}
+        <View style={styles.sourceContainer}>
+          <Text style={[styles.sourceText, { color: isDarkMode ? '#BBBBBB' : '#666666' }]}>
+            ※内線規程より
+          </Text>
+        </View>
+        
+        {/* 使用制限の注意書き */}
+        <View style={[styles.noticeContainer, { backgroundColor: isDarkMode ? '#333333' : '#FFF3E0' }]}>
+          <Ionicons 
+            name="information-circle" 
+            size={20} 
+            color={isDarkMode ? '#FFA000' : '#FF6F00'} 
+          />
+          <Text style={[styles.noticeText, { color: isDarkMode ? '#FFFFFF' : '#333333' }]}>
+            直径1.2mm以下または断面積1.25mm²以下の電線は一般的に配線用として認められていません。あくまで参考値です。
+          </Text>
+        </View>
         
         {/* 導体形状選択セクション */}
         <TouchableOpacity 
@@ -1073,5 +1130,39 @@ const styles = StyleSheet.create({
   ampacityValue: {
     fontSize: 18,
     fontWeight: 'bold',
-  }
+  },
+  sourceContainer: {
+    paddingBottom: 6,
+    alignItems: 'flex-end',
+  },
+  sourceText: {
+    fontSize: 12,
+    fontStyle: 'italic',
+  },
+  noticeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  noticeText: {
+    fontSize: 13,
+    marginLeft: 8,
+    flex: 1,
+  },
+  warningContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  warningText: {
+    fontSize: 12,
+    marginLeft: 4,
+    fontWeight: '500',
+  },
+  notRecommendedCard: {
+    borderColor: '#FFA000',
+    borderStyle: 'dashed',
+  },
 });
