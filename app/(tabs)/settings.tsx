@@ -79,7 +79,7 @@ export default function SettingsScreen() {
     },
     {
       id: 'contact',
-      title: 'お問合せ',
+      title: 'お問い合わせ',
       description: 'バグ報告や機能リクエスト',
       icon: 'mail',
       iconColor: '#2196F3',

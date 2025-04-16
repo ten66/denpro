@@ -63,7 +63,7 @@ export default function DisclaimerScreen() {
                 styles.linkText,
                 { color: isDarkMode ? '#4dabf7' : '#0070f3' }
               ]}>
-                お問合せフォーム
+                お問い合わせフォーム
               </Text>
             </TouchableOpacity>
             <Text style={[
