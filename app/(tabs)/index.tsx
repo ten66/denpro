@@ -29,6 +29,13 @@ const electricianMaterials: Material[] = [
     icon: 'flash',
     route: '/materials/ampacityIV',
   },
+  {
+    id: '3',
+    title: '許容電流/HIV',
+    description: 'HIV線の許容電流',
+    icon: 'flash',
+    route: '/materials/ampacityHIV',
+  },
 ];
 
 export default function MaterialsScreen() {
