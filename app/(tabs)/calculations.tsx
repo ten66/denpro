@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, Text, View, ScrollView, ColorValue } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, TouchableOpacity, Text, View, ScrollView, ColorValue, Animated } from 'react-native';
 import { useTheme } from '../_layout';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +17,104 @@ type CalculationCard = {
 export default function CalculationsScreen() {
   const { isDarkMode } = useTheme();
   const [activeCategory, setActiveCategory] = useState<'basic' | 'advanced'>('basic');
+  
+  // アニメーション用のステート
+  const pulseAnim = useState(new Animated.Value(1))[0];
+  const fadeAnim = useState(new Animated.Value(0))[0];
+  const rotateAnim = useState(new Animated.Value(0))[0];
+  const floatAnim1 = useState(new Animated.Value(0))[0];
+  const floatAnim2 = useState(new Animated.Value(0))[0];
+  
+  // アニメーション設定
+  useEffect(() => {
+    // フェードインアニメーション
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
+    
+    // パルスアニメーション
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        })
+      ])
+    ).start();
+    
+    // 回転アニメーション
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotateAnim, {
+          toValue: 0,
+          duration: 2000,
+          useNativeDriver: true,
+        })
+      ])
+    ).start();
+    
+    // 浮遊アニメーション1
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim1, {
+          toValue: 1,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim1, {
+          toValue: 0,
+          duration: 3000,
+          useNativeDriver: true,
+        })
+      ])
+    ).start();
+    
+    // 浮遊アニメーション2（タイミングをずらす）
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim2, {
+          toValue: 1,
+          duration: 4000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim2, {
+          toValue: 0,
+          duration: 4000,
+          useNativeDriver: true,
+        })
+      ])
+    ).start();
+  }, []);
+  
+  // 回転の変換
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '15deg']
+  });
+  
+  // 浮遊アニメーションの変換
+  const translateY1 = floatAnim1.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -10]
+  });
+  
+  const translateY2 = floatAnim2.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -8]
+  });
   
   // カテゴリ切り替え
   const switchCategory = (category: 'basic' | 'advanced') => {
@@ -148,6 +246,87 @@ export default function CalculationsScreen() {
       fontSize: 16,
       color: isDarkMode ? '#999' : '#666',
       textAlign: 'center',
+    },
+    comingSoonCard: {
+      marginTop: 24,
+      marginBottom: 16,
+      padding: 20,
+      borderRadius: 12,
+      backgroundColor: isDarkMode ? '#1E1E1E' : '#fff',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDarkMode ? 0.3 : 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: isDarkMode ? '#333' : '#eee',
+      position: 'relative',
+      overflow: 'hidden',
+      minHeight: 200,
+    },
+    comingSoonBadge: {
+      position: 'absolute',
+      top: 12,
+      right: 12,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 12,
+      backgroundColor: isDarkMode ? '#3b82f6' : '#0070f3',
+      zIndex: 10,
+    },
+    comingSoonBadgeText: {
+      color: '#fff',
+      fontSize: 12,
+      fontWeight: 'bold',
+    },
+    comingSoonIcon: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(0, 112, 243, 0.1)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(0, 112, 243, 0.2)',
+    },
+    floatingDot: {
+      position: 'absolute',
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: isDarkMode ? 'rgba(147, 197, 253, 0.4)' : 'rgba(59, 130, 246, 0.3)',
+    },
+    comingSoonTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: isDarkMode ? '#fff' : '#333',
+      marginBottom: 8,
+      textShadowColor: 'rgba(0, 0, 0, 0.15)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 2,
+      textAlign: 'center',
+    },
+    comingSoonText: {
+      fontSize: 15,
+      color: isDarkMode ? '#bbb' : '#666',
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    comingSoonDot: {
+      width: 4,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: isDarkMode ? '#3b82f6' : '#0070f3',
+      marginHorizontal: 3,
+    },
+    dotContainer: {
+      flexDirection: 'row',
+      marginTop: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
     },
   });
 
@@ -297,6 +476,110 @@ export default function CalculationsScreen() {
             {activeCategory === 'basic' ? '基本的な電気計算' : '応用的な電気計算'}
           </Text>
           {renderCards()}
+          
+          {/* 開発中メッセージ */}
+          <Animated.View 
+            style={[
+              styles.comingSoonCard,
+              {
+                opacity: fadeAnim,
+                transform: [{ scale: pulseAnim }]
+              }
+            ]}
+          >
+            {/* グラデーション背景 */}
+            <LinearGradient
+              colors={isDarkMode ? 
+                ['rgba(59, 130, 246, 0.1)', 'rgba(37, 99, 235, 0.05)'] : 
+                ['rgba(219, 234, 254, 0.5)', 'rgba(147, 197, 253, 0.2)']}
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+              }}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            />
+            
+            {/* 装飾的な円形グラデーション */}
+            <View style={{
+              position: 'absolute',
+              width: 150,
+              height: 150,
+              borderRadius: 75,
+              backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.05)' : 'rgba(191, 219, 254, 0.6)',
+              top: -30,
+              left: -30,
+              zIndex: 1,
+            }} />
+            
+            <View style={{
+              position: 'absolute',
+              width: 100,
+              height: 100,
+              borderRadius: 50,
+              backgroundColor: isDarkMode ? 'rgba(37, 99, 235, 0.1)' : 'rgba(147, 197, 253, 0.3)',
+              bottom: -20,
+              right: -20,
+              zIndex: 1,
+            }} />
+            
+            {/* 装飾の浮遊する点 */}
+            <Animated.View style={[styles.floatingDot, { top: '15%', left: '15%', transform: [{ scale: pulseAnim }], width: 6, height: 6, borderRadius: 3 }]} />
+            <Animated.View style={[styles.floatingDot, { top: '70%', left: '20%', transform: [{ scale: pulseAnim }] }]} />
+            <Animated.View style={[styles.floatingDot, { top: '30%', right: '15%', transform: [{ scale: pulseAnim }] }]} />
+            <Animated.View style={[styles.floatingDot, { top: '60%', right: '10%', transform: [{ scale: pulseAnim }] }]} />
+            <Animated.View style={[styles.floatingDot, { top: '40%', left: '40%', transform: [{ scale: pulseAnim }], width: 4, height: 4, borderRadius: 2 }]} />
+            <Animated.View style={[styles.floatingDot, { top: '20%', right: '30%', transform: [{ scale: pulseAnim }], width: 4, height: 4, borderRadius: 2 }]} />
+            
+            <View style={styles.comingSoonBadge}>
+              <Text style={styles.comingSoonBadgeText}>COMING SOON</Text>
+            </View>
+            
+            <Animated.View 
+              style={[
+                styles.comingSoonIcon,
+                { transform: [{ rotate: spin }, { translateY: translateY1 }] }
+              ]}
+            >
+              <Ionicons 
+                name="rocket-outline" 
+                size={28} 
+                color={isDarkMode ? '#3b82f6' : '#0070f3'} 
+              />
+            </Animated.View>
+            
+            <Animated.View style={{ transform: [{ translateY: translateY2 }], alignItems: 'center', width: '100%' }}>
+              <Text style={styles.comingSoonTitle}>開発中</Text>
+              <Text style={styles.comingSoonText}>
+                他の計算機能も順次追加していきます。{'\n'}
+                ご期待ください！
+              </Text>
+              
+              <View style={styles.dotContainer}>
+                <Animated.View 
+                  style={[
+                    styles.comingSoonDot,
+                    { opacity: pulseAnim }
+                  ]} 
+                />
+                <Animated.View 
+                  style={[
+                    styles.comingSoonDot,
+                    { opacity: pulseAnim, transform: [{ scale: pulseAnim }] }
+                  ]} 
+                />
+                <Animated.View 
+                  style={[
+                    styles.comingSoonDot,
+                    { opacity: pulseAnim }
+                  ]} 
+                />
+              </View>
+            </Animated.View>
+          </Animated.View>
         </View>
       </ScrollView>
     </View>
