@@ -328,8 +328,8 @@ export default function VoltageDropRateCalculator() {
     const breakerCurrentValue = parseFloat(breakerCurrent);
     const mcbCurrentValue = parseFloat(mcbCurrent);
     const isBreakerValid = breakerCurrentValue >= calculatedLoadCurrent;
-    const isMcbValid = mcbCurrentValue >= calculatedLoadCurrent;
-    const isWireSizeValid = calculatedAllowableCurrent >= mcbCurrentValue;
+    const isMcbValid = mcbCurrentValue >= calculatedLoadCurrent && mcbCurrentValue <= calculatedAllowableCurrent;
+    const isWireSizeValid = calculatedAllowableCurrent >= mcbCurrentValue && calculatedAllowableCurrent >= calculatedLoadCurrent;
     
     // 総合判定（遮断器容量と電圧降下率のみで判定）
     setIsCalculationValid(isBreakerValid && isMcbValid && isWireSizeValid);
@@ -738,7 +738,7 @@ export default function VoltageDropRateCalculator() {
                   >
                     {loadCurrent && parseFloat(breakerCurrent) >= loadCurrent ? 
                       '✅ 適正' : 
-                      '❌ 容量不足'}
+                      '❌ 要再検討'}
                   </Text>
                 </View>
               </View>
@@ -749,12 +749,12 @@ export default function VoltageDropRateCalculator() {
                   <Text 
                     style={[
                       styles.badgeText, 
-                      loadCurrent && parseFloat(mcbCurrent) >= loadCurrent ? styles.okBadge : styles.ngBadge
+                      loadCurrent && parseFloat(mcbCurrent) >= loadCurrent && allowableCurrent && parseFloat(mcbCurrent) <= allowableCurrent ? styles.okBadge : styles.ngBadge
                     ]}
                   >
-                    {loadCurrent && parseFloat(mcbCurrent) >= loadCurrent ? 
+                    {loadCurrent && parseFloat(mcbCurrent) >= loadCurrent && allowableCurrent && parseFloat(mcbCurrent) <= allowableCurrent ? 
                       '✅ 適正' : 
-                      '❌ 容量不足'}
+                      '❌ 要再検討'}
                   </Text>
                 </View>
               </View>
@@ -765,12 +765,12 @@ export default function VoltageDropRateCalculator() {
                   <Text 
                     style={[
                       styles.badgeText, 
-                      allowableCurrent && parseFloat(mcbCurrent) && allowableCurrent >= parseFloat(mcbCurrent) ? styles.okBadge : styles.ngBadge
+                      allowableCurrent && loadCurrent !== null && parseFloat(mcbCurrent) && allowableCurrent >= parseFloat(mcbCurrent) && allowableCurrent >= loadCurrent ? styles.okBadge : styles.ngBadge
                     ]}
                   >
-                    {allowableCurrent && parseFloat(mcbCurrent) && allowableCurrent >= parseFloat(mcbCurrent) ? 
+                    {allowableCurrent && loadCurrent !== null && parseFloat(mcbCurrent) && allowableCurrent >= parseFloat(mcbCurrent) && allowableCurrent >= loadCurrent ? 
                       '✅ 適正' : 
-                      '❌ 許容電流不足'}
+                      '❌ 要再検討'}
                   </Text>
                 </View>
               </View>
@@ -839,7 +839,9 @@ export default function VoltageDropRateCalculator() {
                   <Text style={styles.formulaSubtitle}>判定基準</Text>
                   <Text style={styles.explanationText}>• 幹線保護用遮断器の定格電流 ≧ 負荷電流</Text>
                   <Text style={styles.explanationText}>• 主幹MCBの定格電流 ≧ 負荷電流</Text>
+                  <Text style={styles.explanationText}>• 主幹MCBの定格電流 ≦ 許容電流</Text>
                   <Text style={styles.explanationText}>• 幹線の許容電流 ≧ 主幹MCBの定格電流</Text>
+                  <Text style={styles.explanationText}>• 幹線の許容電流 ≧ 負荷電流</Text>
                   <Text style={styles.explanationText}>• 電圧降下率 ≦ 3%</Text>
                 </View>
               </View>
@@ -876,14 +878,12 @@ export default function VoltageDropRateCalculator() {
                   validateField('reductionFactor', text);
                 }}
                 onEndEditing={(e) => {
-                  // 入力完了時に小数点第2位まで四捨五入
+                  // 入力完了時に小数点第2位で正確に四捨五入して固定表示する処理を削除
                   const text = e.nativeEvent.text;
                   if (text !== '') {
                     const parsedValue = parseFloat(text);
                     if (!isNaN(parsedValue)) {
-                      // 小数点第2位で正確に四捨五入して固定表示
-                      const roundedValue = Math.round(parsedValue * 100) / 100;
-                      setReductionFactor(roundedValue.toFixed(2));
+                      setReductionFactor(text);
                     } else {
                       setReductionFactor('');
                     }
@@ -1082,14 +1082,12 @@ export default function VoltageDropRateCalculator() {
                   validateField('loadCapacity', text);
                 }}
                 onEndEditing={(e) => {
-                  // 入力完了時に小数点第2位まで四捨五入
+                  // 入力完了時に小数点第2位で正確に四捨五入して固定表示する処理を削除
                   const text = e.nativeEvent.text;
                   if (text !== '') {
                     const parsedValue = parseFloat(text);
                     if (!isNaN(parsedValue)) {
-                      // 小数点第2位で正確に四捨五入して固定表示
-                      const roundedValue = Math.round(parsedValue * 100) / 100;
-                      setLoadCapacity(roundedValue.toFixed(2));
+                      setLoadCapacity(text);
                     } else {
                       setLoadCapacity('');
                     }
@@ -1124,14 +1122,12 @@ export default function VoltageDropRateCalculator() {
                   validateField('powerFactor', text);
                 }}
                 onEndEditing={(e) => {
-                  // 入力完了時に小数点第3位まで四捨五入
+                  // 入力完了時に小数点第3位で正確に四捨五入して固定表示する処理を削除
                   const text = e.nativeEvent.text;
                   if (text !== '') {
                     const parsedValue = parseFloat(text);
                     if (!isNaN(parsedValue)) {
-                      // 小数点第3位で正確に四捨五入して固定表示
-                      const roundedValue = Math.round(parsedValue * 1000) / 1000;
-                      setPowerFactor(roundedValue.toFixed(3));
+                      setPowerFactor(text);
                     } else {
                       setPowerFactor('');
                     }
