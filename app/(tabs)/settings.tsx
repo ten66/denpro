@@ -145,15 +145,6 @@ export default function SettingsScreen() {
           type: 'link',
           onPress: () => handleOpenURL('https://forms.gle/chswttw68dP9XPuR7'),
         },
-        {
-          id: 'about',
-          title: 'アプリについて',
-          description: 'バージョン情報とライセンス',
-          icon: 'information-circle',
-          iconColor: '#7986CB',
-          type: 'link',
-          onPress: () => handleNotYetImplemented('アプリ情報'),
-        },
       ]
     },
   ];
