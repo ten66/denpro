@@ -665,6 +665,7 @@ export default function VoltageDropRateCalculator() {
           backgroundColor: isDarkMode ? '#121212' : '#f5f5f5',
         },
         headerTintColor: isDarkMode ? '#fff' : '#000',
+        headerBackButtonDisplayMode: "minimal",
       }} />
       
       <ScrollView 
