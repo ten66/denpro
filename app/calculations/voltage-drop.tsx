@@ -696,7 +696,7 @@ export default function VoltageDropCalculator() {
           </TouchableOpacity>
         </Animated.View>
         
-        <View style={styles.infoCard}>
+        {/* <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>電圧降下計算について</Text>
           <Text style={styles.infoText}>
             電気設備の設計において、電圧降下は重要な要素です。電圧降下が大きすぎると機器の性能低下や故障の原因となります。
@@ -722,7 +722,7 @@ export default function VoltageDropCalculator() {
               <Text style={styles.variableDesc}>:電線の断面積 (mm²)</Text>
             </View>
           </View>
-        </View>
+        </View> */}
         <View style={{ height: 40 }} />
       </ScrollView>
     </KeyboardAvoidingView>

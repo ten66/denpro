@@ -645,7 +645,7 @@ export default function WireSizeCalculator() {
           </TouchableOpacity>
         </Animated.View>
         
-        <View style={styles.infoCard}>
+        {/* <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>電線断面積計算について</Text>
           <Text style={styles.infoText}>
             電線の断面積は電気設備の安全性を確保するために重要です。適切な断面積を持つ電線を使用することで、過熱や火災のリスクを低減できます。
@@ -675,7 +675,7 @@ export default function WireSizeCalculator() {
               <Text style={styles.variableDesc}>:外側線または各相の1線と中性線との間の電圧降下 (V)</Text>
             </View>
           </View>
-        </View>
+        </View> */}
         <View style={{ height: 40 }} />
       </ScrollView>
     </KeyboardAvoidingView>
