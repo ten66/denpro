@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Animated, Dimensions, ToastAndroid, Alert } from 'react-native';
 import { useTheme } from '../_layout';
 import { Stack } from 'expo-router';
@@ -43,7 +43,7 @@ export default function VoltageDropRateCalculator() {
   const [length, setLength] = useState('');
   const [mcbCurrent, setMcbCurrent] = useState('');
   const [loadCapacity, setLoadCapacity] = useState('');
-  const [powerFactor, setPowerFactor] = useState('0.9');
+  const [powerFactor, setPowerFactor] = useState('');
   const [wireSize, setWireSize] = useState('14');
   
   // 計算結果
@@ -93,7 +93,7 @@ export default function VoltageDropRateCalculator() {
   };
 
   // 特定のフィールドをバリデーション
-  const validateField = (field: string, value: string) => {
+  const validateField = useCallback((field: string, value: string) => {
     const errors: { [key: string]: string } = { ...validationErrors };
     
     switch (field) {
@@ -172,7 +172,15 @@ export default function VoltageDropRateCalculator() {
     }
     
     setValidationErrors(errors);
-  };
+  }, [validationErrors, breakerCurrent]);
+  
+  // useEffectを追加
+  useEffect(() => {
+    // breakerCurrentが変更されたとき、mcbCurrentのバリデーションを再実行
+    if (mcbCurrent) {
+      validateField('mcbCurrent', mcbCurrent);
+    }
+  }, [breakerCurrent]);
 
   // フォームのバリデーション
   const validateForm = (): boolean => {
@@ -867,6 +875,20 @@ export default function VoltageDropRateCalculator() {
                   setReductionFactor(text);
                   validateField('reductionFactor', text);
                 }}
+                onEndEditing={(e) => {
+                  // 入力完了時に小数点第2位まで四捨五入
+                  const text = e.nativeEvent.text;
+                  if (text !== '') {
+                    const parsedValue = parseFloat(text);
+                    if (!isNaN(parsedValue)) {
+                      // 小数点第2位で正確に四捨五入して固定表示
+                      const roundedValue = Math.round(parsedValue * 100) / 100;
+                      setReductionFactor(roundedValue.toFixed(2));
+                    } else {
+                      setReductionFactor('');
+                    }
+                  }
+                }}
               />
               <Text style={styles.unitText}>（0.1〜2）</Text>
             </Animated.View>
@@ -939,6 +961,18 @@ export default function VoltageDropRateCalculator() {
                     validateField('mcbCurrent', mcbCurrent);
                   }
                 }}
+                onEndEditing={(e) => {
+                  // 入力完了時に小数点以下を切り捨て
+                  const text = e.nativeEvent.text;
+                  if (text !== '') {
+                    const parsedValue = parseInt(text, 10);
+                    if (!isNaN(parsedValue)) {
+                      setBreakerCurrent(parsedValue.toString());
+                    } else {
+                      setBreakerCurrent('');
+                    }
+                  }
+                }}
               />
               <Text style={styles.unitText}>A</Text>
             </Animated.View>
@@ -966,6 +1000,18 @@ export default function VoltageDropRateCalculator() {
                 onChangeText={(text) => {
                   setLength(text);
                   validateField('length', text);
+                }}
+                onEndEditing={(e) => {
+                  // 入力完了時に小数点以下を切り捨て
+                  const text = e.nativeEvent.text;
+                  if (text !== '') {
+                    const parsedValue = parseInt(text, 10);
+                    if (!isNaN(parsedValue)) {
+                      setLength(parsedValue.toString());
+                    } else {
+                      setLength('');
+                    }
+                  }
                 }}
               />
               <Text style={styles.unitText}>m</Text>
@@ -995,6 +1041,18 @@ export default function VoltageDropRateCalculator() {
                   setMcbCurrent(text);
                   validateField('mcbCurrent', text);
                 }}
+                onEndEditing={(e) => {
+                  // 入力完了時に小数点以下を切り捨て
+                  const text = e.nativeEvent.text;
+                  if (text !== '') {
+                    const parsedValue = parseInt(text, 10);
+                    if (!isNaN(parsedValue)) {
+                      setMcbCurrent(parsedValue.toString());
+                    } else {
+                      setMcbCurrent('');
+                    }
+                  }
+                }}
               />
               <Text style={styles.unitText}>A</Text>
             </Animated.View>
@@ -1023,6 +1081,20 @@ export default function VoltageDropRateCalculator() {
                   setLoadCapacity(text);
                   validateField('loadCapacity', text);
                 }}
+                onEndEditing={(e) => {
+                  // 入力完了時に小数点第2位まで四捨五入
+                  const text = e.nativeEvent.text;
+                  if (text !== '') {
+                    const parsedValue = parseFloat(text);
+                    if (!isNaN(parsedValue)) {
+                      // 小数点第2位で正確に四捨五入して固定表示
+                      const roundedValue = Math.round(parsedValue * 100) / 100;
+                      setLoadCapacity(roundedValue.toFixed(2));
+                    } else {
+                      setLoadCapacity('');
+                    }
+                  }
+                }}
               />
               <Text style={styles.unitText}>kW</Text>
             </Animated.View>
@@ -1050,6 +1122,20 @@ export default function VoltageDropRateCalculator() {
                 onChangeText={(text) => {
                   setPowerFactor(text);
                   validateField('powerFactor', text);
+                }}
+                onEndEditing={(e) => {
+                  // 入力完了時に小数点第3位まで四捨五入
+                  const text = e.nativeEvent.text;
+                  if (text !== '') {
+                    const parsedValue = parseFloat(text);
+                    if (!isNaN(parsedValue)) {
+                      // 小数点第3位で正確に四捨五入して固定表示
+                      const roundedValue = Math.round(parsedValue * 1000) / 1000;
+                      setPowerFactor(roundedValue.toFixed(3));
+                    } else {
+                      setPowerFactor('');
+                    }
+                  }
                 }}
               />
               <Text style={styles.unitText}>（cosφ）</Text>
