@@ -22,21 +22,21 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "資料一覧",
-          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-            <Ionicons name="document-text" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="calculations"
-        options={{
           title: "計算",
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <Ionicons name="calculator" size={size} color={color} />
           ),
         }}
       />
+      {/* <Tabs.Screen
+        name="materials"
+        options={{
+          title: "資料一覧",
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+            <Ionicons name="document-text" size={size} color={color} />
+          ),
+        }}
+      /> */}
       <Tabs.Screen
         name="settings"
         options={{
