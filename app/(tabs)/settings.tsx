@@ -117,7 +117,7 @@ export default function SettingsScreen() {
           icon: 'document-text',
           iconColor: '#9C27B0',
           type: 'link',
-          onPress: () => router.push('/settings/terms'),
+          onPress: () => handleOpenURL('https://sites.google.com/view/denpro-terms/'),
         },
         {
           id: 'disclaimer',
