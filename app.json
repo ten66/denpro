@@ -2,14 +2,14 @@
   "expo": {
     "name": "denpro",
     "slug": "denpro",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/denpro-icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.ten66.denpro",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
