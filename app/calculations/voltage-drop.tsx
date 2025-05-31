@@ -1,5 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Animated, Dimensions } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Animated,
+  Dimensions,
+} from 'react-native';
 import { useTheme } from '../_layout';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -35,29 +46,29 @@ export default function VoltageDropCalculator() {
 
   // 計算タイプ
   const circuitTypes = [
-    { 
-      id: 'dc_single', 
-      label: '直流および単相2線式', 
+    {
+      id: 'dc_single',
+      label: '直流および単相2線式',
       factor: 35.6,
-      formula: 'e = 35.6 × L × I / (1000 × S)'
+      formula: 'e = 35.6 × L × I / (1000 × S)',
     },
-    { 
-      id: 'three_phase', 
-      label: '三相3線式', 
+    {
+      id: 'three_phase',
+      label: '三相3線式',
       factor: 30.8,
-      formula: 'e = 30.8 × L × I / (1000 × S)'
+      formula: 'e = 30.8 × L × I / (1000 × S)',
     },
-    { 
-      id: 'neutral', 
-      label: '直流3線式・単相3線式・三相4線式', 
+    {
+      id: 'neutral',
+      label: '直流3線式・単相3線式・三相4線式',
       factor: 17.8,
-      formula: "e' = 17.8 × L × I / (1000 × S)"
+      formula: "e' = 17.8 × L × I / (1000 × S)",
     },
   ];
 
   // 現在の回路タイプの取得
   const getCurrentCircuitType = () => {
-    return circuitTypes.find(type => type.id === circuitType) || circuitTypes[0];
+    return circuitTypes.find((type) => type.id === circuitType) || circuitTypes[0];
   };
 
   // 入力のリセット
@@ -106,7 +117,7 @@ export default function VoltageDropCalculator() {
         Animated.timing(errorShakeAnimation, { toValue: 10, duration: 50, useNativeDriver: true }),
         Animated.timing(errorShakeAnimation, { toValue: -10, duration: 50, useNativeDriver: true }),
         Animated.timing(errorShakeAnimation, { toValue: 10, duration: 50, useNativeDriver: true }),
-        Animated.timing(errorShakeAnimation, { toValue: 0, duration: 50, useNativeDriver: true })
+        Animated.timing(errorShakeAnimation, { toValue: 0, duration: 50, useNativeDriver: true }),
       ]).start();
     }
 
@@ -116,43 +127,43 @@ export default function VoltageDropCalculator() {
   // 電圧降下の計算
   const calculateVoltageDrop = () => {
     resetValidationErrors();
-    
+
     if (!validateForm()) {
       return; // 検証に失敗した場合は処理を中止
     }
-    
+
     const lengthValue = parseFloat(length);
     const currentValue = parseFloat(current);
     const wireSizeValue = parseFloat(wireSize);
     const currentType = getCurrentCircuitType();
-    
+
     // 正しい計算式に基づいて電圧降下を計算
     // e = factor * L * I / (1000 * S)
     const dropValue = (currentType.factor * lengthValue * currentValue) / (1000 * wireSizeValue);
-    
+
     // 小数点以下第3位まで表示（四捨五入）
     setResult(parseFloat(dropValue.toFixed(3)));
-    
+
     // 計算に使用したパラメータを保存
     setCalculationParams({
       length,
       current,
       wireSize,
-      circuitType: currentType.label
+      circuitType: currentType.label,
     });
-    
+
     // 結果のアニメーション
     Animated.sequence([
       Animated.timing(resultAnimation, {
         toValue: 0,
         duration: 100,
-        useNativeDriver: true
+        useNativeDriver: true,
       }),
       Animated.timing(resultAnimation, {
         toValue: 1,
         duration: 500,
-        useNativeDriver: true
-      })
+        useNativeDriver: true,
+      }),
     ]).start();
 
     // 結果が表示されたらスクロールを上部に移動
@@ -164,11 +175,11 @@ export default function VoltageDropCalculator() {
   // 計算式表示の切り替え
   const toggleFormula = () => {
     setShowFormula(!showFormula);
-    
+
     Animated.timing(formulaAnimation, {
       toValue: showFormula ? 0 : 1,
       duration: 300,
-      useNativeDriver: true
+      useNativeDriver: true,
     }).start();
   };
 
@@ -445,7 +456,7 @@ export default function VoltageDropCalculator() {
     },
     variableRow: {
       flexDirection: 'row',
-      marginBottom: 6
+      marginBottom: 6,
     },
     variableSymbol: {
       width: 30,
@@ -455,15 +466,14 @@ export default function VoltageDropCalculator() {
     variableDesc: {
       flex: 1,
       color: isDarkMode ? '#ccc' : '#555',
-    }
+    },
   });
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1 }}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-    >
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
       <Stack.Screen
         options={{
           title: '電圧降下計算',
@@ -471,57 +481,63 @@ export default function VoltageDropCalculator() {
             backgroundColor: isDarkMode ? '#121212' : '#FFFFFF',
           },
           headerTintColor: isDarkMode ? '#FFFFFF' : '#000000',
-          headerBackButtonDisplayMode: "minimal",
+          headerBackButtonDisplayMode: 'minimal',
         }}
       />
-      <ScrollView 
+      <ScrollView
         style={styles.container}
         ref={scrollViewRef}
         keyboardShouldPersistTaps="handled" // キーボード表示中でもタップイベントを処理
       >
         {/* 計算結果表示カード */}
         {result !== null && calculationParams !== null && (
-          <Animated.View 
+          <Animated.View
             style={[
               styles.resultCard,
               {
                 opacity: resultAnimation,
-                transform: [{
-                  translateY: resultAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [20, 0]
-                  })
-                }]
-              }
-            ]}
-          >
+                transform: [
+                  {
+                    translateY: resultAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [20, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}>
             <View style={styles.resultRow}>
               <Text style={styles.resultHeader}>計算結果</Text>
             </View>
-            
+
             <View style={styles.resultContainer}>
               <View style={styles.resultCircle} />
-              <Text style={styles.resultLabel}>{circuitType === 'neutral' ? '外側線または各相の1線と中性線との間の電圧降下' : '各線間の電圧降下'}</Text>
+              <Text style={styles.resultLabel}>
+                {circuitType === 'neutral'
+                  ? '外側線または各相の1線と中性線との間の電圧降下'
+                  : '各線間の電圧降下'}
+              </Text>
               <View style={styles.resultValueContainer}>
-                <Animated.Text 
+                <Animated.Text
                   style={[
                     styles.resultValue,
                     {
-                      transform: [{
-                        scale: resultAnimation.interpolate({
-                          inputRange: [0, 0.5, 1],
-                          outputRange: [0.8, 1.1, 1]
-                        })
-                      }]
-                    }
-                  ]}
-                >
+                      transform: [
+                        {
+                          scale: resultAnimation.interpolate({
+                            inputRange: [0, 0.5, 1],
+                            outputRange: [0.8, 1.1, 1],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}>
                   {result}
                 </Animated.Text>
                 <Text style={styles.resultUnit}>V</Text>
               </View>
             </View>
-            
+
             <View style={styles.paramSummary}>
               <View style={styles.paramRow}>
                 <Text style={styles.paramLabel}>計算タイプ:</Text>
@@ -544,39 +560,40 @@ export default function VoltageDropCalculator() {
         )}
 
         {/* 入力フォームカード */}
-        <Animated.View 
-          style={[
-            styles.inputCard,
-            { transform: [{ translateX: errorShakeAnimation }] }
-          ]}
-        >
+        <Animated.View
+          style={[styles.inputCard, { transform: [{ translateX: errorShakeAnimation }] }]}>
           <View style={styles.headerRow}>
             <Text style={styles.cardTitle}>電圧降下計算</Text>
             <TouchableOpacity style={styles.formulaButton} onPress={toggleFormula}>
               <Text style={styles.formulaButtonText}>計算式</Text>
-              <Ionicons name={showFormula ? "chevron-up" : "chevron-down"} size={16} color={isDarkMode ? '#ddd' : '#555'} />
+              <Ionicons
+                name={showFormula ? 'chevron-up' : 'chevron-down'}
+                size={16}
+                color={isDarkMode ? '#ddd' : '#555'}
+              />
             </TouchableOpacity>
           </View>
-          
+
           {showFormula && (
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.formulaContainer,
                 {
                   opacity: formulaAnimation,
-                  transform: [{
-                    translateY: formulaAnimation.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [-20, 0]
-                    })
-                  }]
-                }
-              ]}
-            >
+                  transform: [
+                    {
+                      translateY: formulaAnimation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [-20, 0],
+                      }),
+                    },
+                  ],
+                },
+              ]}>
               <Text style={styles.formulaText}>{getCurrentCircuitType().formula}</Text>
             </Animated.View>
           )}
-          
+
           <View style={styles.circuitTypeCard}>
             <Text style={styles.circuitTypeHeader}>計算タイプ</Text>
             <View style={styles.circuitTypeOptions}>
@@ -585,10 +602,9 @@ export default function VoltageDropCalculator() {
                   key={type.id}
                   style={[
                     styles.circuitTypeOption,
-                    index === circuitTypes.length - 1 && styles.circuitTypeOptionLast
+                    index === circuitTypes.length - 1 && styles.circuitTypeOptionLast,
                   ]}
-                  onPress={() => setCircuitType(type.id)}
-                >
+                  onPress={() => setCircuitType(type.id)}>
                   <View style={styles.circuitTypeRadio}>
                     {circuitType === type.id && <View style={styles.circuitTypeRadioSelected} />}
                   </View>
@@ -597,20 +613,17 @@ export default function VoltageDropCalculator() {
               ))}
             </View>
           </View>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>L: 電線の長さ (m)</Text>
             <TextInput
-              style={[
-                styles.textInput,
-                validationErrors.length && styles.textInputError
-              ]}
+              style={[styles.textInput, validationErrors.length && styles.textInputError]}
               keyboardType="numeric"
               value={length}
               onChangeText={(text) => {
                 setLength(text);
                 if (validationErrors.length) {
-                  setValidationErrors(prev => ({ ...prev, length: undefined }));
+                  setValidationErrors((prev) => ({ ...prev, length: undefined }));
                 }
               }}
               placeholder="電線の長さを入力"
@@ -620,20 +633,17 @@ export default function VoltageDropCalculator() {
               <Text style={styles.errorMessage}>{validationErrors.length}</Text>
             )}
           </View>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>I: 電流 (A)</Text>
             <TextInput
-              style={[
-                styles.textInput,
-                validationErrors.current && styles.textInputError
-              ]}
+              style={[styles.textInput, validationErrors.current && styles.textInputError]}
               keyboardType="numeric"
               value={current}
               onChangeText={(text) => {
                 setCurrent(text);
                 if (validationErrors.current) {
-                  setValidationErrors(prev => ({ ...prev, current: undefined }));
+                  setValidationErrors((prev) => ({ ...prev, current: undefined }));
                 }
               }}
               placeholder="電流値を入力"
@@ -643,20 +653,17 @@ export default function VoltageDropCalculator() {
               <Text style={styles.errorMessage}>{validationErrors.current}</Text>
             )}
           </View>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>S: 電線の断面積 (sq)</Text>
             <TextInput
-              style={[
-                styles.textInput,
-                validationErrors.wireSize && styles.textInputError
-              ]}
+              style={[styles.textInput, validationErrors.wireSize && styles.textInputError]}
               keyboardType="numeric"
               value={wireSize}
               onChangeText={(text) => {
                 setWireSize(text);
                 if (validationErrors.wireSize) {
-                  setValidationErrors(prev => ({ ...prev, wireSize: undefined }));
+                  setValidationErrors((prev) => ({ ...prev, wireSize: undefined }));
                 }
               }}
               placeholder="電線の断面積を入力"
@@ -676,26 +683,24 @@ export default function VoltageDropCalculator() {
                     onPress={() => {
                       selectCommonWireSize(size);
                       if (validationErrors.wireSize) {
-                        setValidationErrors(prev => ({ ...prev, wireSize: undefined }));
+                        setValidationErrors((prev) => ({ ...prev, wireSize: undefined }));
                       }
-                    }}
-                  >
+                    }}>
                     <Text style={styles.commonSizeButtonText}>{size} mm²</Text>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
           </View>
-          
+
           <TouchableOpacity
             style={styles.calculateButton}
             onPress={calculateVoltageDrop}
-            activeOpacity={0.7}
-          >
+            activeOpacity={0.7}>
             <Text style={styles.calculateButtonText}>計算する</Text>
           </TouchableOpacity>
         </Animated.View>
-        
+
         {/* <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>電圧降下計算について</Text>
           <Text style={styles.infoText}>
@@ -727,4 +732,4 @@ export default function VoltageDropCalculator() {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-} 
+}

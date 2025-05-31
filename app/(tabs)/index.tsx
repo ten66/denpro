@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, Text, View, ScrollView, ColorValue, Animated } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  View,
+  ScrollView,
+  ColorValue,
+  Animated,
+} from 'react-native';
 import { useTheme } from '../_layout';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,14 +25,14 @@ type CalculationCard = {
 export default function CalculationsScreen() {
   const { isDarkMode } = useTheme();
   const [activeCategory, setActiveCategory] = useState<'basic' | 'advanced'>('basic');
-  
+
   // アニメーション用のステート
   const pulseAnim = useState(new Animated.Value(1))[0];
   const fadeAnim = useState(new Animated.Value(0))[0];
   const rotateAnim = useState(new Animated.Value(0))[0];
   const floatAnim1 = useState(new Animated.Value(0))[0];
   const floatAnim2 = useState(new Animated.Value(0))[0];
-  
+
   // アニメーション設定
   useEffect(() => {
     // フェードインアニメーション
@@ -33,7 +41,7 @@ export default function CalculationsScreen() {
       duration: 800,
       useNativeDriver: true,
     }).start();
-    
+
     // パルスアニメーション
     Animated.loop(
       Animated.sequence([
@@ -46,10 +54,10 @@ export default function CalculationsScreen() {
           toValue: 1,
           duration: 1500,
           useNativeDriver: true,
-        })
-      ])
+        }),
+      ]),
     ).start();
-    
+
     // 回転アニメーション
     Animated.loop(
       Animated.sequence([
@@ -62,10 +70,10 @@ export default function CalculationsScreen() {
           toValue: 0,
           duration: 2000,
           useNativeDriver: true,
-        })
-      ])
+        }),
+      ]),
     ).start();
-    
+
     // 浮遊アニメーション1
     Animated.loop(
       Animated.sequence([
@@ -78,10 +86,10 @@ export default function CalculationsScreen() {
           toValue: 0,
           duration: 3000,
           useNativeDriver: true,
-        })
-      ])
+        }),
+      ]),
     ).start();
-    
+
     // 浮遊アニメーション2（タイミングをずらす）
     Animated.loop(
       Animated.sequence([
@@ -94,34 +102,34 @@ export default function CalculationsScreen() {
           toValue: 0,
           duration: 4000,
           useNativeDriver: true,
-        })
-      ])
+        }),
+      ]),
     ).start();
   }, []);
-  
+
   // 回転の変換
   const spin = rotateAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '15deg']
+    outputRange: ['0deg', '15deg'],
   });
-  
+
   // 浮遊アニメーションの変換
   const translateY1 = floatAnim1.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -10]
+    outputRange: [0, -10],
   });
-  
+
   const translateY2 = floatAnim2.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -8]
+    outputRange: [0, -8],
   });
-  
+
   // カテゴリ切り替え
   const switchCategory = (category: 'basic' | 'advanced') => {
     if (category === activeCategory) return;
     setActiveCategory(category);
   };
-  
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -362,7 +370,7 @@ export default function CalculationsScreen() {
   // アクティブなカテゴリのカードを表示
   const renderCards = () => {
     const cards = activeCategory === 'basic' ? basicCalculations : advancedCalculations;
-    
+
     if (cards.length === 0) {
       return (
         <View style={styles.noContent}>
@@ -370,7 +378,7 @@ export default function CalculationsScreen() {
         </View>
       );
     }
-    
+
     return cards.map((card) => (
       <Link key={card.id} href={`/calculations/${card.id}` as any} asChild>
         <TouchableOpacity style={styles.card}>
@@ -378,44 +386,49 @@ export default function CalculationsScreen() {
             colors={card.gradientColors}
             style={styles.cardGradient}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-          >
+            end={{ x: 1, y: 0 }}>
             <View style={styles.cardContent}>
-              <View 
+              <View
                 style={[
-                  styles.cardIcon, 
-                  activeCategory === 'basic' ? styles.cardIconBasic : styles.cardIconAdvanced
-                ]}
-              >
-                <Ionicons 
-                  name={card.icon as any} 
-                  size={24} 
-                  color={activeCategory === 'basic' 
-                    ? (isDarkMode ? '#4dabf7' : '#0070f3') 
-                    : (isDarkMode ? '#f7ad4d' : '#f37000')
-                  } 
+                  styles.cardIcon,
+                  activeCategory === 'basic' ? styles.cardIconBasic : styles.cardIconAdvanced,
+                ]}>
+                <Ionicons
+                  name={card.icon as any}
+                  size={24}
+                  color={
+                    activeCategory === 'basic'
+                      ? isDarkMode
+                        ? '#4dabf7'
+                        : '#0070f3'
+                      : isDarkMode
+                        ? '#f7ad4d'
+                        : '#f37000'
+                  }
                 />
               </View>
               <Text style={styles.cardTitle}>{card.title}</Text>
-              <Text style={styles.cardDescription}>
-                {card.description}
-              </Text>
+              <Text style={styles.cardDescription}>{card.description}</Text>
               <View style={styles.linkRow}>
-                <Text 
+                <Text
                   style={[
-                    styles.linkText, 
-                    activeCategory === 'basic' ? styles.basicLinkText : styles.advancedLinkText
-                  ]}
-                >
+                    styles.linkText,
+                    activeCategory === 'basic' ? styles.basicLinkText : styles.advancedLinkText,
+                  ]}>
                   計算する
                 </Text>
-                <Ionicons 
-                  name="chevron-forward" 
-                  size={16} 
-                  color={activeCategory === 'basic' 
-                    ? (isDarkMode ? '#4dabf7' : '#0070f3') 
-                    : (isDarkMode ? '#f7ad4d' : '#f37000')
-                  } 
+                <Ionicons
+                  name="chevron-forward"
+                  size={16}
+                  color={
+                    activeCategory === 'basic'
+                      ? isDarkMode
+                        ? '#4dabf7'
+                        : '#0070f3'
+                      : isDarkMode
+                        ? '#f7ad4d'
+                        : '#f37000'
+                  }
                 />
               </View>
             </View>
@@ -430,45 +443,45 @@ export default function CalculationsScreen() {
       {/* ヘッダー部分 */}
       <View style={styles.header}>
         <Text style={styles.title}>計算ツール</Text>
-        
+
         {/* カテゴリ切り替えボタン */}
         <View style={styles.categories}>
           <TouchableOpacity
             style={[
               styles.categoryButton,
-              activeCategory === 'basic' ? styles.activeCategory : styles.inactiveCategory
+              activeCategory === 'basic' ? styles.activeCategory : styles.inactiveCategory,
             ]}
-            onPress={() => switchCategory('basic')}
-          >
-            <Text 
+            onPress={() => switchCategory('basic')}>
+            <Text
               style={[
                 styles.categoryText,
-                activeCategory === 'basic' ? styles.activeCategoryText : styles.inactiveCategoryText
-              ]}
-            >
+                activeCategory === 'basic'
+                  ? styles.activeCategoryText
+                  : styles.inactiveCategoryText,
+              ]}>
               基本計算
             </Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[
               styles.categoryButton,
-              activeCategory === 'advanced' ? styles.activeCategory : styles.inactiveCategory
+              activeCategory === 'advanced' ? styles.activeCategory : styles.inactiveCategory,
             ]}
-            onPress={() => switchCategory('advanced')}
-          >
-            <Text 
+            onPress={() => switchCategory('advanced')}>
+            <Text
               style={[
                 styles.categoryText,
-                activeCategory === 'advanced' ? styles.activeCategoryText : styles.inactiveCategoryText
-              ]}
-            >
+                activeCategory === 'advanced'
+                  ? styles.activeCategoryText
+                  : styles.inactiveCategoryText,
+              ]}>
               応用計算
             </Text>
           </TouchableOpacity>
         </View>
       </View>
-      
+
       {/* カード表示エリア */}
       <ScrollView style={styles.content}>
         <View>
@@ -476,22 +489,23 @@ export default function CalculationsScreen() {
             {activeCategory === 'basic' ? '基本的な電気計算' : '応用的な電気計算'}
           </Text>
           {renderCards()}
-          
+
           {/* 開発中メッセージ */}
-          <Animated.View 
+          <Animated.View
             style={[
               styles.comingSoonCard,
               {
                 opacity: fadeAnim,
-                transform: [{ scale: pulseAnim }]
-              }
-            ]}
-          >
+                transform: [{ scale: pulseAnim }],
+              },
+            ]}>
             {/* グラデーション背景 */}
             <LinearGradient
-              colors={isDarkMode ? 
-                ['rgba(59, 130, 246, 0.1)', 'rgba(37, 99, 235, 0.05)'] : 
-                ['rgba(219, 234, 254, 0.5)', 'rgba(147, 197, 253, 0.2)']}
+              colors={
+                isDarkMode
+                  ? ['rgba(59, 130, 246, 0.1)', 'rgba(37, 99, 235, 0.05)']
+                  : ['rgba(219, 234, 254, 0.5)', 'rgba(147, 197, 253, 0.2)']
+              }
               style={{
                 position: 'absolute',
                 left: 0,
@@ -502,81 +516,132 @@ export default function CalculationsScreen() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             />
-            
+
             {/* 装飾的な円形グラデーション */}
-            <View style={{
-              position: 'absolute',
-              width: 150,
-              height: 150,
-              borderRadius: 75,
-              backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.05)' : 'rgba(191, 219, 254, 0.6)',
-              top: -30,
-              left: -30,
-              zIndex: 1,
-            }} />
-            
-            <View style={{
-              position: 'absolute',
-              width: 100,
-              height: 100,
-              borderRadius: 50,
-              backgroundColor: isDarkMode ? 'rgba(37, 99, 235, 0.1)' : 'rgba(147, 197, 253, 0.3)',
-              bottom: -20,
-              right: -20,
-              zIndex: 1,
-            }} />
-            
+            <View
+              style={{
+                position: 'absolute',
+                width: 150,
+                height: 150,
+                borderRadius: 75,
+                backgroundColor: isDarkMode
+                  ? 'rgba(59, 130, 246, 0.05)'
+                  : 'rgba(191, 219, 254, 0.6)',
+                top: -30,
+                left: -30,
+                zIndex: 1,
+              }}
+            />
+
+            <View
+              style={{
+                position: 'absolute',
+                width: 100,
+                height: 100,
+                borderRadius: 50,
+                backgroundColor: isDarkMode ? 'rgba(37, 99, 235, 0.1)' : 'rgba(147, 197, 253, 0.3)',
+                bottom: -20,
+                right: -20,
+                zIndex: 1,
+              }}
+            />
+
             {/* 装飾の浮遊する点 */}
-            <Animated.View style={[styles.floatingDot, { top: '15%', left: '15%', transform: [{ scale: pulseAnim }], width: 6, height: 6, borderRadius: 3 }]} />
-            <Animated.View style={[styles.floatingDot, { top: '70%', left: '20%', transform: [{ scale: pulseAnim }] }]} />
-            <Animated.View style={[styles.floatingDot, { top: '30%', right: '15%', transform: [{ scale: pulseAnim }] }]} />
-            <Animated.View style={[styles.floatingDot, { top: '60%', right: '10%', transform: [{ scale: pulseAnim }] }]} />
-            <Animated.View style={[styles.floatingDot, { top: '40%', left: '40%', transform: [{ scale: pulseAnim }], width: 4, height: 4, borderRadius: 2 }]} />
-            <Animated.View style={[styles.floatingDot, { top: '20%', right: '30%', transform: [{ scale: pulseAnim }], width: 4, height: 4, borderRadius: 2 }]} />
-            
+            <Animated.View
+              style={[
+                styles.floatingDot,
+                {
+                  top: '15%',
+                  left: '15%',
+                  transform: [{ scale: pulseAnim }],
+                  width: 6,
+                  height: 6,
+                  borderRadius: 3,
+                },
+              ]}
+            />
+            <Animated.View
+              style={[
+                styles.floatingDot,
+                { top: '70%', left: '20%', transform: [{ scale: pulseAnim }] },
+              ]}
+            />
+            <Animated.View
+              style={[
+                styles.floatingDot,
+                { top: '30%', right: '15%', transform: [{ scale: pulseAnim }] },
+              ]}
+            />
+            <Animated.View
+              style={[
+                styles.floatingDot,
+                { top: '60%', right: '10%', transform: [{ scale: pulseAnim }] },
+              ]}
+            />
+            <Animated.View
+              style={[
+                styles.floatingDot,
+                {
+                  top: '40%',
+                  left: '40%',
+                  transform: [{ scale: pulseAnim }],
+                  width: 4,
+                  height: 4,
+                  borderRadius: 2,
+                },
+              ]}
+            />
+            <Animated.View
+              style={[
+                styles.floatingDot,
+                {
+                  top: '20%',
+                  right: '30%',
+                  transform: [{ scale: pulseAnim }],
+                  width: 4,
+                  height: 4,
+                  borderRadius: 2,
+                },
+              ]}
+            />
+
             <View style={styles.comingSoonBadge}>
               <Text style={styles.comingSoonBadgeText}>COMING SOON</Text>
             </View>
-            
-            <Animated.View 
+
+            <Animated.View
               style={[
                 styles.comingSoonIcon,
-                { transform: [{ rotate: spin }, { translateY: translateY1 }] }
-              ]}
-            >
-              <Ionicons 
-                name="rocket-outline" 
-                size={28} 
-                color={isDarkMode ? '#3b82f6' : '#0070f3'} 
+                { transform: [{ rotate: spin }, { translateY: translateY1 }] },
+              ]}>
+              <Ionicons
+                name="rocket-outline"
+                size={28}
+                color={isDarkMode ? '#3b82f6' : '#0070f3'}
               />
             </Animated.View>
-            
-            <Animated.View style={{ transform: [{ translateY: translateY2 }], alignItems: 'center', width: '100%' }}>
+
+            <Animated.View
+              style={{
+                transform: [{ translateY: translateY2 }],
+                alignItems: 'center',
+                width: '100%',
+              }}>
               <Text style={styles.comingSoonTitle}>開発中</Text>
               <Text style={styles.comingSoonText}>
                 他の計算機能も順次追加していきます。{'\n'}
                 ご期待ください！
               </Text>
-              
+
               <View style={styles.dotContainer}>
-                <Animated.View 
+                <Animated.View style={[styles.comingSoonDot, { opacity: pulseAnim }]} />
+                <Animated.View
                   style={[
                     styles.comingSoonDot,
-                    { opacity: pulseAnim }
-                  ]} 
+                    { opacity: pulseAnim, transform: [{ scale: pulseAnim }] },
+                  ]}
                 />
-                <Animated.View 
-                  style={[
-                    styles.comingSoonDot,
-                    { opacity: pulseAnim, transform: [{ scale: pulseAnim }] }
-                  ]} 
-                />
-                <Animated.View 
-                  style={[
-                    styles.comingSoonDot,
-                    { opacity: pulseAnim }
-                  ]} 
-                />
+                <Animated.View style={[styles.comingSoonDot, { opacity: pulseAnim }]} />
               </View>
             </Animated.View>
           </Animated.View>
@@ -584,4 +649,4 @@ export default function CalculationsScreen() {
       </ScrollView>
     </View>
   );
-} 
+}

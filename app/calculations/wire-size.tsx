@@ -1,5 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Animated, Dimensions } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Animated,
+  Dimensions,
+} from 'react-native';
 import { useTheme } from '../_layout';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -32,29 +43,29 @@ export default function WireSizeCalculator() {
 
   // 計算タイプ
   const circuitTypes = [
-    { 
-      id: 'dc_single', 
-      label: '直流および単相2線式', 
+    {
+      id: 'dc_single',
+      label: '直流および単相2線式',
       factor: 35.6,
-      formula: 'S = 35.6 × L × I / (1000 × e)'
+      formula: 'S = 35.6 × L × I / (1000 × e)',
     },
-    { 
-      id: 'three_phase', 
-      label: '三相3線式', 
+    {
+      id: 'three_phase',
+      label: '三相3線式',
       factor: 30.8,
-      formula: 'S = 30.8 × L × I / (1000 × e)'
+      formula: 'S = 30.8 × L × I / (1000 × e)',
     },
-    { 
-      id: 'neutral', 
-      label: '直流3線式・単相3線式・三相4線式', 
+    {
+      id: 'neutral',
+      label: '直流3線式・単相3線式・三相4線式',
       factor: 17.8,
-      formula: "S = 17.8 × L × I / (1000 × e')"
+      formula: "S = 17.8 × L × I / (1000 × e')",
     },
   ];
 
   // 現在の回路タイプの取得
   const getCurrentCircuitType = () => {
-    return circuitTypes.find(type => type.id === circuitType) || circuitTypes[0];
+    return circuitTypes.find((type) => type.id === circuitType) || circuitTypes[0];
   };
 
   // 入力のリセット
@@ -103,7 +114,7 @@ export default function WireSizeCalculator() {
         Animated.timing(errorShakeAnimation, { toValue: 10, duration: 50, useNativeDriver: true }),
         Animated.timing(errorShakeAnimation, { toValue: -10, duration: 50, useNativeDriver: true }),
         Animated.timing(errorShakeAnimation, { toValue: 10, duration: 50, useNativeDriver: true }),
-        Animated.timing(errorShakeAnimation, { toValue: 0, duration: 50, useNativeDriver: true })
+        Animated.timing(errorShakeAnimation, { toValue: 0, duration: 50, useNativeDriver: true }),
       ]).start();
     }
 
@@ -113,43 +124,44 @@ export default function WireSizeCalculator() {
   // 電線断面積の計算
   const calculateWireSize = () => {
     resetValidationErrors();
-    
+
     if (!validateForm()) {
       return; // 検証に失敗した場合は処理を中止
     }
-    
+
     const lengthValue = parseFloat(length);
     const currentValue = parseFloat(current);
     const voltageDropValue = parseFloat(voltageDrop);
     const currentType = getCurrentCircuitType();
-    
+
     // 正しい計算式に基づいて電線断面積を計算
     // S = factor * L * I / (1000 * e)
-    const wireSizeValue = (currentType.factor * lengthValue * currentValue) / (1000 * voltageDropValue);
-    
+    const wireSizeValue =
+      (currentType.factor * lengthValue * currentValue) / (1000 * voltageDropValue);
+
     // 小数点以下第3位まで表示（四捨五入）
     setResult(parseFloat(wireSizeValue.toFixed(3)));
-    
+
     // 計算に使用したパラメータを保存
     setCalculationParams({
       length,
       current,
       voltageDrop,
-      circuitType: currentType.label
+      circuitType: currentType.label,
     });
-    
+
     // 結果のアニメーション
     Animated.sequence([
       Animated.timing(resultAnimation, {
         toValue: 0,
         duration: 100,
-        useNativeDriver: true
+        useNativeDriver: true,
       }),
       Animated.timing(resultAnimation, {
         toValue: 1,
         duration: 500,
-        useNativeDriver: true
-      })
+        useNativeDriver: true,
+      }),
     ]).start();
 
     // 結果が表示されたらスクロールを上部に移動
@@ -161,11 +173,11 @@ export default function WireSizeCalculator() {
   // 計算式表示の切り替え
   const toggleFormula = () => {
     setShowFormula(!showFormula);
-    
+
     Animated.timing(formulaAnimation, {
       toValue: showFormula ? 0 : 1,
       duration: 300,
-      useNativeDriver: true
+      useNativeDriver: true,
     }).start();
   };
 
@@ -413,7 +425,7 @@ export default function WireSizeCalculator() {
     },
     variableRow: {
       flexDirection: 'row',
-      marginBottom: 6
+      marginBottom: 6,
     },
     variableSymbol: {
       width: 30,
@@ -423,15 +435,14 @@ export default function WireSizeCalculator() {
     variableDesc: {
       flex: 1,
       color: isDarkMode ? '#ccc' : '#555',
-    }
+    },
   });
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1 }}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-    >
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
       <Stack.Screen
         options={{
           title: '電線断面積計算',
@@ -439,57 +450,59 @@ export default function WireSizeCalculator() {
             backgroundColor: isDarkMode ? '#121212' : '#FFFFFF',
           },
           headerTintColor: isDarkMode ? '#FFFFFF' : '#000000',
-          headerBackButtonDisplayMode: "minimal",
+          headerBackButtonDisplayMode: 'minimal',
         }}
       />
-      <ScrollView 
+      <ScrollView
         style={styles.container}
         ref={scrollViewRef}
         keyboardShouldPersistTaps="handled" // キーボード表示中でもタップイベントを処理
       >
         {/* 計算結果表示カード */}
         {result !== null && calculationParams !== null && (
-          <Animated.View 
+          <Animated.View
             style={[
               styles.resultCard,
               {
                 opacity: resultAnimation,
-                transform: [{
-                  translateY: resultAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [20, 0]
-                  })
-                }]
-              }
-            ]}
-          >
+                transform: [
+                  {
+                    translateY: resultAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [20, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}>
             <View style={styles.resultRow}>
               <Text style={styles.resultHeader}>計算結果</Text>
             </View>
-            
+
             <View style={styles.resultContainer}>
               <View style={styles.resultCircle} />
               <Text style={styles.resultLabel}>必要な電線の断面積</Text>
               <View style={styles.resultValueContainer}>
-                <Animated.Text 
+                <Animated.Text
                   style={[
                     styles.resultValue,
                     {
-                      transform: [{
-                        scale: resultAnimation.interpolate({
-                          inputRange: [0, 0.5, 1],
-                          outputRange: [0.8, 1.1, 1]
-                        })
-                      }]
-                    }
-                  ]}
-                >
+                      transform: [
+                        {
+                          scale: resultAnimation.interpolate({
+                            inputRange: [0, 0.5, 1],
+                            outputRange: [0.8, 1.1, 1],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}>
                   {result}
                 </Animated.Text>
                 <Text style={styles.resultUnit}>mm²</Text>
               </View>
             </View>
-            
+
             <View style={styles.paramSummary}>
               <View style={styles.paramRow}>
                 <Text style={styles.paramLabel}>計算タイプ:</Text>
@@ -512,39 +525,40 @@ export default function WireSizeCalculator() {
         )}
 
         {/* 入力フォームカード */}
-        <Animated.View 
-          style={[
-            styles.inputCard,
-            { transform: [{ translateX: errorShakeAnimation }] }
-          ]}
-        >
+        <Animated.View
+          style={[styles.inputCard, { transform: [{ translateX: errorShakeAnimation }] }]}>
           <View style={styles.headerRow}>
             <Text style={styles.cardTitle}>電線断面積計算</Text>
             <TouchableOpacity style={styles.formulaButton} onPress={toggleFormula}>
               <Text style={styles.formulaButtonText}>計算式</Text>
-              <Ionicons name={showFormula ? "chevron-up" : "chevron-down"} size={16} color={isDarkMode ? '#ddd' : '#555'} />
+              <Ionicons
+                name={showFormula ? 'chevron-up' : 'chevron-down'}
+                size={16}
+                color={isDarkMode ? '#ddd' : '#555'}
+              />
             </TouchableOpacity>
           </View>
-          
+
           {showFormula && (
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.formulaContainer,
                 {
                   opacity: formulaAnimation,
-                  transform: [{
-                    translateY: formulaAnimation.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [-20, 0]
-                    })
-                  }]
-                }
-              ]}
-            >
+                  transform: [
+                    {
+                      translateY: formulaAnimation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [-20, 0],
+                      }),
+                    },
+                  ],
+                },
+              ]}>
               <Text style={styles.formulaText}>{getCurrentCircuitType().formula}</Text>
             </Animated.View>
           )}
-          
+
           <View style={styles.circuitTypeCard}>
             <Text style={styles.circuitTypeHeader}>計算タイプ</Text>
             <View style={styles.circuitTypeOptions}>
@@ -553,10 +567,9 @@ export default function WireSizeCalculator() {
                   key={type.id}
                   style={[
                     styles.circuitTypeOption,
-                    index === circuitTypes.length - 1 && styles.circuitTypeOptionLast
+                    index === circuitTypes.length - 1 && styles.circuitTypeOptionLast,
                   ]}
-                  onPress={() => setCircuitType(type.id)}
-                >
+                  onPress={() => setCircuitType(type.id)}>
                   <View style={styles.circuitTypeRadio}>
                     {circuitType === type.id && <View style={styles.circuitTypeRadioSelected} />}
                   </View>
@@ -565,20 +578,17 @@ export default function WireSizeCalculator() {
               ))}
             </View>
           </View>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>L: 電線の長さ (m)</Text>
             <TextInput
-              style={[
-                styles.textInput,
-                validationErrors.length && styles.textInputError
-              ]}
+              style={[styles.textInput, validationErrors.length && styles.textInputError]}
               keyboardType="numeric"
               value={length}
               onChangeText={(text) => {
                 setLength(text);
                 if (validationErrors.length) {
-                  setValidationErrors(prev => ({ ...prev, length: undefined }));
+                  setValidationErrors((prev) => ({ ...prev, length: undefined }));
                 }
               }}
               placeholder="電線の長さを入力"
@@ -588,20 +598,17 @@ export default function WireSizeCalculator() {
               <Text style={styles.errorMessage}>{validationErrors.length}</Text>
             )}
           </View>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>I: 電流 (A)</Text>
             <TextInput
-              style={[
-                styles.textInput,
-                validationErrors.current && styles.textInputError
-              ]}
+              style={[styles.textInput, validationErrors.current && styles.textInputError]}
               keyboardType="numeric"
               value={current}
               onChangeText={(text) => {
                 setCurrent(text);
                 if (validationErrors.current) {
-                  setValidationErrors(prev => ({ ...prev, current: undefined }));
+                  setValidationErrors((prev) => ({ ...prev, current: undefined }));
                 }
               }}
               placeholder="電流値を入力"
@@ -611,20 +618,19 @@ export default function WireSizeCalculator() {
               <Text style={styles.errorMessage}>{validationErrors.current}</Text>
             )}
           </View>
-          
+
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{circuitType === 'neutral' ? "e': 電圧降下 (V)" : "e: 電圧降下 (V)"}</Text>
+            <Text style={styles.inputLabel}>
+              {circuitType === 'neutral' ? "e': 電圧降下 (V)" : 'e: 電圧降下 (V)'}
+            </Text>
             <TextInput
-              style={[
-                styles.textInput,
-                validationErrors.voltageDrop && styles.textInputError
-              ]}
+              style={[styles.textInput, validationErrors.voltageDrop && styles.textInputError]}
               keyboardType="numeric"
               value={voltageDrop}
               onChangeText={(text) => {
                 setVoltageDrop(text);
                 if (validationErrors.voltageDrop) {
-                  setValidationErrors(prev => ({ ...prev, voltageDrop: undefined }));
+                  setValidationErrors((prev) => ({ ...prev, voltageDrop: undefined }));
                 }
               }}
               placeholder="電圧降下を入力"
@@ -635,16 +641,15 @@ export default function WireSizeCalculator() {
               <Text style={styles.errorMessage}>{validationErrors.voltageDrop}</Text>
             )}
           </View>
-          
+
           <TouchableOpacity
             style={styles.calculateButton}
             onPress={calculateWireSize}
-            activeOpacity={0.7}
-          >
+            activeOpacity={0.7}>
             <Text style={styles.calculateButtonText}>計算する</Text>
           </TouchableOpacity>
         </Animated.View>
-        
+
         {/* <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>電線断面積計算について</Text>
           <Text style={styles.infoText}>
@@ -680,4 +685,4 @@ export default function WireSizeCalculator() {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-} 
+}

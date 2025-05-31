@@ -1,5 +1,18 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Animated, Dimensions, ToastAndroid, Alert } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Animated,
+  Dimensions,
+  ToastAndroid,
+  Alert,
+} from 'react-native';
 import { useTheme } from '../_layout';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,7 +29,21 @@ const powerSupplyTypes = [
 ];
 
 // 線種選択肢
-const wireSizeOptions = ['2', '3.5', '5.5', '8', '14', '22', '38', '60', '100', '150', '200', '250', '325'];
+const wireSizeOptions = [
+  '2',
+  '3.5',
+  '5.5',
+  '8',
+  '14',
+  '22',
+  '38',
+  '60',
+  '100',
+  '150',
+  '200',
+  '250',
+  '325',
+];
 
 // 線種ごとの許容電流表
 const allowableCurrentTable: Record<string, Record<string, number>> = {
@@ -32,7 +59,7 @@ const allowableCurrentTable: Record<string, Record<string, number>> = {
   '150': { '2': 400, '3': 380 },
   '200': { '2': 490, '3': 465 },
   '250': { '2': 565, '3': 535 },
-  '325': { '2': 670, '3': 635 }
+  '325': { '2': 670, '3': 635 },
 };
 
 export default function VoltageDropRateCalculator() {
@@ -45,18 +72,18 @@ export default function VoltageDropRateCalculator() {
   const [loadCapacity, setLoadCapacity] = useState('');
   const [powerFactor, setPowerFactor] = useState('');
   const [wireSize, setWireSize] = useState('14');
-  
+
   // 計算結果
   const [loadCurrent, setLoadCurrent] = useState<number | null>(null);
   const [allowableCurrent, setAllowableCurrent] = useState<number | null>(null);
   const [voltageDrop, setVoltageDrop] = useState<number | null>(null);
   const [voltageDropRate, setVoltageDropRate] = useState<number | null>(null);
   const [isCalculationValid, setIsCalculationValid] = useState(false);
-  
+
   // 表示状態
   const [showFormula, setShowFormula] = useState(false);
   const [showResult, setShowResult] = useState(false);
-  
+
   // バリデーションエラー
   const [validationErrors, setValidationErrors] = useState<{
     reductionFactor?: string;
@@ -66,17 +93,17 @@ export default function VoltageDropRateCalculator() {
     loadCapacity?: string;
     powerFactor?: string;
   }>({});
-  
+
   // アニメーション用
   const resultCardAnimation = useRef(new Animated.Value(0)).current;
   const errorShakeAnimation = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef<ScrollView>(null);
-  
+
   // 選択した給電方式の情報を取得
   const getSelectedPowerSupply = () => {
-    return powerSupplyTypes.find(type => type.id === powerSupply) || powerSupplyTypes[0];
+    return powerSupplyTypes.find((type) => type.id === powerSupply) || powerSupplyTypes[0];
   };
-  
+
   // トースト表示 (iOS対応)
   const showToast = (message: string) => {
     if (Platform.OS === 'android') {
@@ -86,94 +113,97 @@ export default function VoltageDropRateCalculator() {
       Alert.alert('情報', message, [{ text: '閉じる' }], { cancelable: true });
     }
   };
-  
+
   // バリデーションエラーをリセット
   const resetValidationErrors = () => {
     setValidationErrors({});
   };
 
   // 特定のフィールドをバリデーション
-  const validateField = useCallback((field: string, value: string) => {
-    const errors: { [key: string]: string } = { ...validationErrors };
-    
-    switch (field) {
-      case 'reductionFactor':
-        if (!value.trim()) {
-          errors.reductionFactor = '低減率を入力してください';
-        } else {
-          const factor = parseFloat(value);
-          if (isNaN(factor) || factor < 0.1 || factor > 2) {
-            errors.reductionFactor = '0.1〜2の値を入力してください';
+  const validateField = useCallback(
+    (field: string, value: string) => {
+      const errors: { [key: string]: string } = { ...validationErrors };
+
+      switch (field) {
+        case 'reductionFactor':
+          if (!value.trim()) {
+            errors.reductionFactor = '低減率を入力してください';
           } else {
-            delete errors.reductionFactor;
+            const factor = parseFloat(value);
+            if (isNaN(factor) || factor < 0.1 || factor > 2) {
+              errors.reductionFactor = '0.1〜2の値を入力してください';
+            } else {
+              delete errors.reductionFactor;
+            }
           }
-        }
-        break;
-      
-      case 'breakerCurrent':
-        if (!value.trim()) {
-          errors.breakerCurrent = '遮断器定格電流を入力してください';
-        } else if (isNaN(parseFloat(value)) || parseFloat(value) <= 0) {
-          errors.breakerCurrent = '正の数値を入力してください';
-        } else {
-          delete errors.breakerCurrent;
-        }
-        break;
-      
-      case 'length':
-        if (!value.trim()) {
-          errors.length = '電線長さを入力してください';
-        } else if (isNaN(parseFloat(value)) || parseFloat(value) <= 0) {
-          errors.length = '正の数値を入力してください';
-        } else {
-          delete errors.length;
-        }
-        break;
-      
-      case 'mcbCurrent':
-        if (!value.trim()) {
-          errors.mcbCurrent = '主幹MCB定格電流を入力してください';
-        } else {
-          const mcbValue = parseFloat(value);
-          const breakerValue = parseFloat(breakerCurrent);
-          
-          if (isNaN(mcbValue) || mcbValue <= 0) {
-            errors.mcbCurrent = '正の数値を入力してください';
-          } else if (!isNaN(breakerValue) && mcbValue > breakerValue) {
-            errors.mcbCurrent = '幹線保護用遮断器定格以下の値を入力してください';
+          break;
+
+        case 'breakerCurrent':
+          if (!value.trim()) {
+            errors.breakerCurrent = '遮断器定格電流を入力してください';
+          } else if (isNaN(parseFloat(value)) || parseFloat(value) <= 0) {
+            errors.breakerCurrent = '正の数値を入力してください';
           } else {
-            delete errors.mcbCurrent;
+            delete errors.breakerCurrent;
           }
-        }
-        break;
-      
-      case 'loadCapacity':
-        if (!value.trim()) {
-          errors.loadCapacity = '負荷容量を入力してください';
-        } else if (isNaN(parseFloat(value)) || parseFloat(value) <= 0) {
-          errors.loadCapacity = '正の数値を入力してください';
-        } else {
-          delete errors.loadCapacity;
-        }
-        break;
-      
-      case 'powerFactor':
-        if (!value.trim()) {
-          errors.powerFactor = '力率を入力してください';
-        } else {
-          const factor = parseFloat(value);
-          if (isNaN(factor) || factor <= 0 || factor > 1) {
-            errors.powerFactor = '0〜1の値を入力してください';
+          break;
+
+        case 'length':
+          if (!value.trim()) {
+            errors.length = '電線長さを入力してください';
+          } else if (isNaN(parseFloat(value)) || parseFloat(value) <= 0) {
+            errors.length = '正の数値を入力してください';
           } else {
-            delete errors.powerFactor;
+            delete errors.length;
           }
-        }
-        break;
-    }
-    
-    setValidationErrors(errors);
-  }, [validationErrors, breakerCurrent]);
-  
+          break;
+
+        case 'mcbCurrent':
+          if (!value.trim()) {
+            errors.mcbCurrent = '主幹MCB定格電流を入力してください';
+          } else {
+            const mcbValue = parseFloat(value);
+            const breakerValue = parseFloat(breakerCurrent);
+
+            if (isNaN(mcbValue) || mcbValue <= 0) {
+              errors.mcbCurrent = '正の数値を入力してください';
+            } else if (!isNaN(breakerValue) && mcbValue > breakerValue) {
+              errors.mcbCurrent = '幹線保護用遮断器定格以下の値を入力してください';
+            } else {
+              delete errors.mcbCurrent;
+            }
+          }
+          break;
+
+        case 'loadCapacity':
+          if (!value.trim()) {
+            errors.loadCapacity = '負荷容量を入力してください';
+          } else if (isNaN(parseFloat(value)) || parseFloat(value) <= 0) {
+            errors.loadCapacity = '正の数値を入力してください';
+          } else {
+            delete errors.loadCapacity;
+          }
+          break;
+
+        case 'powerFactor':
+          if (!value.trim()) {
+            errors.powerFactor = '力率を入力してください';
+          } else {
+            const factor = parseFloat(value);
+            if (isNaN(factor) || factor <= 0 || factor > 1) {
+              errors.powerFactor = '0〜1の値を入力してください';
+            } else {
+              delete errors.powerFactor;
+            }
+          }
+          break;
+      }
+
+      setValidationErrors(errors);
+    },
+    [validationErrors, breakerCurrent],
+  );
+
   // useEffectを追加
   useEffect(() => {
     // breakerCurrentが変更されたとき、mcbCurrentのバリデーションを再実行
@@ -231,7 +261,7 @@ export default function VoltageDropRateCalculator() {
     } else {
       const mcbValue = parseFloat(mcbCurrent);
       const breakerValue = parseFloat(breakerCurrent);
-      
+
       if (isNaN(mcbValue) || mcbValue <= 0) {
         errors.mcbCurrent = '正の数値を入力してください';
         isValid = false;
@@ -270,9 +300,9 @@ export default function VoltageDropRateCalculator() {
         Animated.timing(errorShakeAnimation, { toValue: 10, duration: 50, useNativeDriver: true }),
         Animated.timing(errorShakeAnimation, { toValue: -10, duration: 50, useNativeDriver: true }),
         Animated.timing(errorShakeAnimation, { toValue: 10, duration: 50, useNativeDriver: true }),
-        Animated.timing(errorShakeAnimation, { toValue: 0, duration: 50, useNativeDriver: true })
+        Animated.timing(errorShakeAnimation, { toValue: 0, duration: 50, useNativeDriver: true }),
       ]).start();
-      
+
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
 
@@ -282,73 +312,84 @@ export default function VoltageDropRateCalculator() {
   // 電圧降下率を計算する
   const calculateVoltageDropRate = () => {
     resetValidationErrors();
-    
+
     if (!validateForm()) {
       return; // 検証に失敗した場合は処理を中止
     }
-    
+
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    
+
     const selectedPowerSupply = getSelectedPowerSupply();
     const reductionFactorValue = parseFloat(reductionFactor);
     const lengthValue = parseFloat(length);
     const loadCapacityValue = parseFloat(loadCapacity);
     const powerFactorValue = parseFloat(powerFactor);
     const wireSizeValue = parseFloat(wireSize);
-    
+
     // 許容電流の計算
     const wireCountKey = selectedPowerSupply.wireCount >= 3 ? '3' : '2';
     const baseAllowableCurrent = allowableCurrentTable[wireSize][wireCountKey];
-    const calculatedAllowableCurrent = parseFloat((baseAllowableCurrent * reductionFactorValue).toFixed(1));
-    
+    const calculatedAllowableCurrent = parseFloat(
+      (baseAllowableCurrent * reductionFactorValue).toFixed(1),
+    );
+
     // 負荷電流の計算
     let calculatedLoadCurrent;
     if (selectedPowerSupply.phase === 'single') {
       // 単相: I = 1000 * kW / (cosφ * V)
-      calculatedLoadCurrent = Math.round(1000 * loadCapacityValue / (powerFactorValue * selectedPowerSupply.voltage));
+      calculatedLoadCurrent = Math.round(
+        (1000 * loadCapacityValue) / (powerFactorValue * selectedPowerSupply.voltage),
+      );
     } else {
       // 三相: I = 1000 * kW / (cosφ * √3 * V)
-      calculatedLoadCurrent = Math.round(1000 * loadCapacityValue / (powerFactorValue * Math.sqrt(3) * selectedPowerSupply.voltage));
+      calculatedLoadCurrent = Math.round(
+        (1000 * loadCapacityValue) /
+          (powerFactorValue * Math.sqrt(3) * selectedPowerSupply.voltage),
+      );
     }
-    
+
     // 電圧降下の計算: e = 係数 * L * I / (1000 * 断面積)
     const dropFactor = selectedPowerSupply.factor;
-    const calculatedVoltageDrop = (dropFactor * lengthValue * calculatedLoadCurrent) / (1000 * wireSizeValue);
-    
+    const calculatedVoltageDrop =
+      (dropFactor * lengthValue * calculatedLoadCurrent) / (1000 * wireSizeValue);
+
     // 電圧降下率の計算: (電圧降下 / 電圧) * 100
     const calculatedVoltageDropRate = (calculatedVoltageDrop / selectedPowerSupply.voltage) * 100;
-    
+
     // 結果をセット
     setLoadCurrent(calculatedLoadCurrent);
     setAllowableCurrent(calculatedAllowableCurrent);
     setVoltageDrop(parseFloat(calculatedVoltageDrop.toFixed(3)));
     setVoltageDropRate(parseFloat(calculatedVoltageDropRate.toFixed(1)));
-    
+
     // 電流値の検証
     const breakerCurrentValue = parseFloat(breakerCurrent);
     const mcbCurrentValue = parseFloat(mcbCurrent);
     const isBreakerValid = breakerCurrentValue >= calculatedLoadCurrent;
-    const isMcbValid = mcbCurrentValue >= calculatedLoadCurrent && mcbCurrentValue <= calculatedAllowableCurrent;
-    const isWireSizeValid = calculatedAllowableCurrent >= mcbCurrentValue && calculatedAllowableCurrent >= calculatedLoadCurrent;
-    
+    const isMcbValid =
+      mcbCurrentValue >= calculatedLoadCurrent && mcbCurrentValue <= calculatedAllowableCurrent;
+    const isWireSizeValid =
+      calculatedAllowableCurrent >= mcbCurrentValue &&
+      calculatedAllowableCurrent >= calculatedLoadCurrent;
+
     // 総合判定（遮断器容量と電圧降下率のみで判定）
     setIsCalculationValid(isBreakerValid && isMcbValid && isWireSizeValid);
-    
+
     // 結果表示
     setShowResult(true);
-    
+
     // 結果カードのアニメーション
     Animated.sequence([
       Animated.timing(resultCardAnimation, {
         toValue: 0,
         duration: 0,
-        useNativeDriver: true
+        useNativeDriver: true,
       }),
       Animated.timing(resultCardAnimation, {
         toValue: 1,
         duration: 400,
-        useNativeDriver: true
-      })
+        useNativeDriver: true,
+      }),
     ]).start();
 
     // 結果表示後、スクロールを上部に移動
@@ -664,149 +705,179 @@ export default function VoltageDropRateCalculator() {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1 }}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
-    >
-      <Stack.Screen options={{ 
-        title: '電圧降下率計算',
-        headerShadowVisible: false,
-        headerStyle: { 
-          backgroundColor: isDarkMode ? '#121212' : '#f5f5f5',
-        },
-        headerTintColor: isDarkMode ? '#fff' : '#000',
-        headerBackButtonDisplayMode: "minimal",
-      }} />
-      
-      <ScrollView 
-        style={styles.container}
-        ref={scrollViewRef}
-        keyboardShouldPersistTaps="handled"
-      >
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}>
+      <Stack.Screen
+        options={{
+          title: '電圧降下率計算',
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: isDarkMode ? '#121212' : '#f5f5f5',
+          },
+          headerTintColor: isDarkMode ? '#fff' : '#000',
+          headerBackButtonDisplayMode: 'minimal',
+        }}
+      />
+
+      <ScrollView style={styles.container} ref={scrollViewRef} keyboardShouldPersistTaps="handled">
         {/* 結果表示カード */}
         {showResult && (
-          <Animated.View 
+          <Animated.View
             style={[
-              styles.card, 
+              styles.card,
               styles.resultCard,
-              { 
+              {
                 opacity: resultCardAnimation,
                 transform: [
-                  { 
+                  {
                     scale: resultCardAnimation.interpolate({
                       inputRange: [0, 0.5, 1],
-                      outputRange: [0.9, 1.05, 1]
-                    })
-                  }
-                ]
-              }
-            ]}
-          >
+                      outputRange: [0.9, 1.05, 1],
+                    }),
+                  },
+                ],
+              },
+            ]}>
             <View style={styles.headerRow}>
               <Text style={styles.title}>計算結果</Text>
               <TouchableOpacity style={styles.infoButton} onPress={toggleFormula}>
-                <Ionicons name="information-circle-outline" size={24} color={isDarkMode ? '#ddd' : '#666'} />
+                <Ionicons
+                  name="information-circle-outline"
+                  size={24}
+                  color={isDarkMode ? '#ddd' : '#666'}
+                />
               </TouchableOpacity>
             </View>
-            
+
             {/* 計算結果の簡単な説明 */}
             <Text style={styles.resultExplanation}>
-              下記の結果が全て<Text style={styles.explanationHighlight}>「✅ 適正」</Text>となっていることを確認してください。
-              一つでも<Text style={styles.explanationNegative}>「❌」</Text>がある場合は、配線や機器の見直しが必要です。
+              下記の結果が全て<Text style={styles.explanationHighlight}>「✅ 適正」</Text>
+              となっていることを確認してください。 一つでも
+              <Text style={styles.explanationNegative}>「❌」</Text>
+              がある場合は、配線や機器の見直しが必要です。
             </Text>
-            
+
             {/* 計算結果表示 */}
             <View style={styles.resultContainer}>
               <View style={styles.resultRow}>
                 <Text style={styles.resultLabel}>負荷電流:</Text>
-                <Text style={styles.resultValue}>{loadCurrent} <Text style={styles.resultUnit}>A</Text></Text>
+                <Text style={styles.resultValue}>
+                  {loadCurrent} <Text style={styles.resultUnit}>A</Text>
+                </Text>
               </View>
-              
+
               <View style={styles.resultRow}>
                 <Text style={styles.resultLabel}>許容電流:</Text>
-                <Text style={styles.resultValue}>{allowableCurrent?.toFixed(1) || '0.0'} <Text style={styles.resultUnit}>A</Text></Text>
+                <Text style={styles.resultValue}>
+                  {allowableCurrent?.toFixed(1) || '0.0'} <Text style={styles.resultUnit}>A</Text>
+                </Text>
               </View>
-              
+
               <View style={styles.resultDivider} />
-              
+
               <View style={styles.resultRow}>
                 <Text style={styles.resultLabel}>幹線保護用遮断器:</Text>
                 <View style={styles.badgeContainer}>
-                  <Text 
+                  <Text
                     style={[
-                      styles.badgeText, 
-                      loadCurrent && parseFloat(breakerCurrent) >= loadCurrent ? styles.okBadge : styles.ngBadge
-                    ]}
-                  >
-                    {loadCurrent && parseFloat(breakerCurrent) >= loadCurrent ? 
-                      '✅ 適正' : 
-                      '❌ 要再検討'}
+                      styles.badgeText,
+                      loadCurrent && parseFloat(breakerCurrent) >= loadCurrent
+                        ? styles.okBadge
+                        : styles.ngBadge,
+                    ]}>
+                    {loadCurrent && parseFloat(breakerCurrent) >= loadCurrent
+                      ? '✅ 適正'
+                      : '❌ 要再検討'}
                   </Text>
                 </View>
               </View>
-              
+
               <View style={styles.resultRow}>
                 <Text style={styles.resultLabel}>主幹MCB:</Text>
                 <View style={styles.badgeContainer}>
-                  <Text 
+                  <Text
                     style={[
-                      styles.badgeText, 
-                      loadCurrent && parseFloat(mcbCurrent) >= loadCurrent && allowableCurrent && parseFloat(mcbCurrent) <= allowableCurrent ? styles.okBadge : styles.ngBadge
-                    ]}
-                  >
-                    {loadCurrent && parseFloat(mcbCurrent) >= loadCurrent && allowableCurrent && parseFloat(mcbCurrent) <= allowableCurrent ? 
-                      '✅ 適正' : 
-                      '❌ 要再検討'}
+                      styles.badgeText,
+                      loadCurrent &&
+                      parseFloat(mcbCurrent) >= loadCurrent &&
+                      allowableCurrent &&
+                      parseFloat(mcbCurrent) <= allowableCurrent
+                        ? styles.okBadge
+                        : styles.ngBadge,
+                    ]}>
+                    {loadCurrent &&
+                    parseFloat(mcbCurrent) >= loadCurrent &&
+                    allowableCurrent &&
+                    parseFloat(mcbCurrent) <= allowableCurrent
+                      ? '✅ 適正'
+                      : '❌ 要再検討'}
                   </Text>
                 </View>
               </View>
-              
+
               <View style={styles.resultRow}>
                 <Text style={styles.resultLabel}>幹線線種:</Text>
                 <View style={styles.badgeContainer}>
-                  <Text 
+                  <Text
                     style={[
-                      styles.badgeText, 
-                      allowableCurrent && loadCurrent !== null && parseFloat(mcbCurrent) && allowableCurrent >= parseFloat(mcbCurrent) && allowableCurrent >= loadCurrent ? styles.okBadge : styles.ngBadge
-                    ]}
-                  >
-                    {allowableCurrent && loadCurrent !== null && parseFloat(mcbCurrent) && allowableCurrent >= parseFloat(mcbCurrent) && allowableCurrent >= loadCurrent ? 
-                      '✅ 適正' : 
-                      '❌ 要再検討'}
+                      styles.badgeText,
+                      allowableCurrent &&
+                      loadCurrent !== null &&
+                      parseFloat(mcbCurrent) &&
+                      allowableCurrent >= parseFloat(mcbCurrent) &&
+                      allowableCurrent >= loadCurrent
+                        ? styles.okBadge
+                        : styles.ngBadge,
+                    ]}>
+                    {allowableCurrent &&
+                    loadCurrent !== null &&
+                    parseFloat(mcbCurrent) &&
+                    allowableCurrent >= parseFloat(mcbCurrent) &&
+                    allowableCurrent >= loadCurrent
+                      ? '✅ 適正'
+                      : '❌ 要再検討'}
                   </Text>
                 </View>
               </View>
-              
+
               <View style={styles.resultDivider} />
-              
+
               <View style={styles.resultRow}>
                 <Text style={styles.resultLabel}>電圧降下:</Text>
-                <Text style={styles.resultValue}>{voltageDrop} <Text style={styles.resultUnit}>V</Text></Text>
+                <Text style={styles.resultValue}>
+                  {voltageDrop} <Text style={styles.resultUnit}>V</Text>
+                </Text>
               </View>
-              
+
               <View style={styles.resultRow}>
                 <Text style={styles.resultLabel}>電圧降下率:</Text>
-                <Text style={[styles.resultValue, styles.highlightValue]}>{voltageDropRate} <Text style={styles.resultUnit}>%</Text></Text>
+                <Text style={[styles.resultValue, styles.highlightValue]}>
+                  {voltageDropRate} <Text style={styles.resultUnit}>%</Text>
+                </Text>
               </View>
-              
+
               <View style={styles.resultRow}>
                 <Text style={styles.resultLabel}>判定:</Text>
                 <View style={styles.badgeContainer}>
-                  <Text 
+                  <Text
                     style={[
-                      styles.badgeText, 
-                      voltageDropRate && voltageDropRate <= 3 && isCalculationValid ? styles.okBadge : styles.ngBadge
-                    ]}
-                  >
-                    {voltageDropRate && voltageDropRate <= 3 && isCalculationValid ? '✅ OK' : '❌ 要再検討'}
+                      styles.badgeText,
+                      voltageDropRate && voltageDropRate <= 3 && isCalculationValid
+                        ? styles.okBadge
+                        : styles.ngBadge,
+                    ]}>
+                    {voltageDropRate && voltageDropRate <= 3 && isCalculationValid
+                      ? '✅ OK'
+                      : '❌ 要再検討'}
                   </Text>
                 </View>
               </View>
             </View>
-            
+
             {/* 計算式の表示 */}
             {showFormula && (
               <View style={styles.formulaContainer}>
                 <Text style={styles.formulaTitle}>計算式と判定基準</Text>
-                
+
                 <View style={styles.formulaSection}>
                   <Text style={styles.formulaSubtitle}>負荷電流 (I)</Text>
                   {getSelectedPowerSupply().phase === 'single' ? (
@@ -816,28 +887,46 @@ export default function VoltageDropRateCalculator() {
                   )}
                   <Text style={styles.formulaExample}>I = {loadCurrent} A</Text>
                 </View>
-                
+
                 <View style={styles.formulaSection}>
                   <Text style={styles.formulaSubtitle}>許容電流</Text>
                   <Text style={styles.formulaText}>許容電流 = 基準値 × 低減率</Text>
-                  <Text style={styles.formulaExample}>許容電流 = {allowableCurrentTable[wireSize][getSelectedPowerSupply().wireCount >= 3 ? '3' : '2']} × {reductionFactor} = {allowableCurrent?.toFixed(1) || '0.0'} A</Text>
+                  <Text style={styles.formulaExample}>
+                    許容電流 ={' '}
+                    {
+                      allowableCurrentTable[wireSize][
+                        getSelectedPowerSupply().wireCount >= 3 ? '3' : '2'
+                      ]
+                    }{' '}
+                    × {reductionFactor} = {allowableCurrent?.toFixed(1) || '0.0'} A
+                  </Text>
                 </View>
-                
+
                 <View style={styles.formulaSection}>
                   <Text style={styles.formulaSubtitle}>電圧降下 (e)</Text>
-                  <Text style={styles.formulaText}>e = {getSelectedPowerSupply().factor} × L × I / (1000 × S)</Text>
-                  <Text style={styles.formulaExample}>e = {getSelectedPowerSupply().factor} × {length} × {loadCurrent} / (1000 × {wireSize}) = {voltageDrop} V</Text>
+                  <Text style={styles.formulaText}>
+                    e = {getSelectedPowerSupply().factor} × L × I / (1000 × S)
+                  </Text>
+                  <Text style={styles.formulaExample}>
+                    e = {getSelectedPowerSupply().factor} × {length} × {loadCurrent} / (1000 ×{' '}
+                    {wireSize}) = {voltageDrop} V
+                  </Text>
                 </View>
-                
+
                 <View style={styles.formulaSection}>
                   <Text style={styles.formulaSubtitle}>電圧降下率</Text>
                   <Text style={styles.formulaText}>電圧降下率 = (e / V) × 100</Text>
-                  <Text style={styles.formulaExample}>電圧降下率 = ({voltageDrop} / {getSelectedPowerSupply().voltage}) × 100 = {voltageDropRate} %</Text>
+                  <Text style={styles.formulaExample}>
+                    電圧降下率 = ({voltageDrop} / {getSelectedPowerSupply().voltage}) × 100 ={' '}
+                    {voltageDropRate} %
+                  </Text>
                 </View>
-                
+
                 <View style={styles.formulaSection}>
                   <Text style={styles.formulaSubtitle}>判定基準</Text>
-                  <Text style={styles.explanationText}>• 幹線保護用遮断器の定格電流 ≧ 負荷電流</Text>
+                  <Text style={styles.explanationText}>
+                    • 幹線保護用遮断器の定格電流 ≧ 負荷電流
+                  </Text>
                   <Text style={styles.explanationText}>• 主幹MCBの定格電流 ≧ 負荷電流</Text>
                   <Text style={styles.explanationText}>• 主幹MCBの定格電流 ≦ 許容電流</Text>
                   <Text style={styles.explanationText}>• 幹線の許容電流 ≧ 主幹MCBの定格電流</Text>
@@ -848,25 +937,24 @@ export default function VoltageDropRateCalculator() {
             )}
           </Animated.View>
         )}
-        
+
         {/* 入力フォームカード */}
         <View style={styles.card}>
           <View style={styles.headerRow}>
             <Text style={styles.title}>パラメータ入力</Text>
           </View>
-          
+
           {/* 電線許容電流低減率 */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
               <Text style={styles.label}>電線許容電流低減率</Text>
             </View>
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.inputContainer,
                 validationErrors.reductionFactor ? { borderColor: '#ff6b6b' } : {},
-                { transform: [{ translateX: errorShakeAnimation }] }
-              ]}
-            >
+                { transform: [{ translateX: errorShakeAnimation }] },
+              ]}>
               <TextInput
                 style={styles.input}
                 placeholder="低減率を入力"
@@ -892,9 +980,11 @@ export default function VoltageDropRateCalculator() {
               />
               <Text style={styles.unitText}>（0.1〜2）</Text>
             </Animated.View>
-            {validationErrors.reductionFactor && <Text style={styles.errorText}>{validationErrors.reductionFactor}</Text>}
+            {validationErrors.reductionFactor && (
+              <Text style={styles.errorText}>{validationErrors.reductionFactor}</Text>
+            )}
           </View>
-          
+
           {/* 給電方式 */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
@@ -912,41 +1002,41 @@ export default function VoltageDropRateCalculator() {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     setPowerSupply(type.id);
                   }}
-                  activeOpacity={0.7}
-                >
-                  <Text 
+                  activeOpacity={0.7}>
+                  <Text
                     style={[
                       styles.powerSupplyLabel,
-                      powerSupply === type.id ? styles.activePowerSupplyLabel : styles.inactivePowerSupplyLabel
-                    ]}
-                  >
+                      powerSupply === type.id
+                        ? styles.activePowerSupplyLabel
+                        : styles.inactivePowerSupplyLabel,
+                    ]}>
                     {type.label}
                   </Text>
-                  <Text 
+                  <Text
                     style={[
                       styles.powerSupplyVoltage,
-                      powerSupply === type.id ? styles.activePowerSupplyVoltage : styles.inactivePowerSupplyVoltage
-                    ]}
-                  >
+                      powerSupply === type.id
+                        ? styles.activePowerSupplyVoltage
+                        : styles.inactivePowerSupplyVoltage,
+                    ]}>
                     電圧: {type.voltage}V
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
           </View>
-          
+
           {/* 幹線保護用遮断器定格電流 */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
               <Text style={styles.label}>幹線保護用遮断器定格電流</Text>
             </View>
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.inputContainer,
                 validationErrors.breakerCurrent ? { borderColor: '#ff6b6b' } : {},
-                { transform: [{ translateX: errorShakeAnimation }] }
-              ]}
-            >
+                { transform: [{ translateX: errorShakeAnimation }] },
+              ]}>
               <TextInput
                 style={styles.input}
                 placeholder="定格電流を入力"
@@ -976,21 +1066,22 @@ export default function VoltageDropRateCalculator() {
               />
               <Text style={styles.unitText}>A</Text>
             </Animated.View>
-            {validationErrors.breakerCurrent && <Text style={styles.errorText}>{validationErrors.breakerCurrent}</Text>}
+            {validationErrors.breakerCurrent && (
+              <Text style={styles.errorText}>{validationErrors.breakerCurrent}</Text>
+            )}
           </View>
-          
+
           {/* 長さ */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
               <Text style={styles.label}>電線長さ</Text>
             </View>
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.inputContainer,
                 validationErrors.length ? { borderColor: '#ff6b6b' } : {},
-                { transform: [{ translateX: errorShakeAnimation }] }
-              ]}
-            >
+                { transform: [{ translateX: errorShakeAnimation }] },
+              ]}>
               <TextInput
                 style={styles.input}
                 placeholder="長さを入力"
@@ -1016,21 +1107,22 @@ export default function VoltageDropRateCalculator() {
               />
               <Text style={styles.unitText}>m</Text>
             </Animated.View>
-            {validationErrors.length && <Text style={styles.errorText}>{validationErrors.length}</Text>}
+            {validationErrors.length && (
+              <Text style={styles.errorText}>{validationErrors.length}</Text>
+            )}
           </View>
-          
+
           {/* 主幹MCB定格電流 */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
               <Text style={styles.label}>主幹MCB定格電流</Text>
             </View>
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.inputContainer,
                 validationErrors.mcbCurrent ? { borderColor: '#ff6b6b' } : {},
-                { transform: [{ translateX: errorShakeAnimation }] }
-              ]}
-            >
+                { transform: [{ translateX: errorShakeAnimation }] },
+              ]}>
               <TextInput
                 style={styles.input}
                 placeholder="定格電流を入力"
@@ -1056,21 +1148,22 @@ export default function VoltageDropRateCalculator() {
               />
               <Text style={styles.unitText}>A</Text>
             </Animated.View>
-            {validationErrors.mcbCurrent && <Text style={styles.errorText}>{validationErrors.mcbCurrent}</Text>}
+            {validationErrors.mcbCurrent && (
+              <Text style={styles.errorText}>{validationErrors.mcbCurrent}</Text>
+            )}
           </View>
-          
+
           {/* 負荷容量 */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
               <Text style={styles.label}>負荷容量</Text>
             </View>
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.inputContainer,
                 validationErrors.loadCapacity ? { borderColor: '#ff6b6b' } : {},
-                { transform: [{ translateX: errorShakeAnimation }] }
-              ]}
-            >
+                { transform: [{ translateX: errorShakeAnimation }] },
+              ]}>
               <TextInput
                 style={styles.input}
                 placeholder="負荷容量を入力"
@@ -1096,21 +1189,22 @@ export default function VoltageDropRateCalculator() {
               />
               <Text style={styles.unitText}>kW</Text>
             </Animated.View>
-            {validationErrors.loadCapacity && <Text style={styles.errorText}>{validationErrors.loadCapacity}</Text>}
+            {validationErrors.loadCapacity && (
+              <Text style={styles.errorText}>{validationErrors.loadCapacity}</Text>
+            )}
           </View>
-          
+
           {/* 力率 */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
               <Text style={styles.label}>力率</Text>
             </View>
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.inputContainer,
                 validationErrors.powerFactor ? { borderColor: '#ff6b6b' } : {},
-                { transform: [{ translateX: errorShakeAnimation }] }
-              ]}
-            >
+                { transform: [{ translateX: errorShakeAnimation }] },
+              ]}>
               <TextInput
                 style={styles.input}
                 placeholder="力率を入力"
@@ -1136,9 +1230,11 @@ export default function VoltageDropRateCalculator() {
               />
               <Text style={styles.unitText}>（cosφ）</Text>
             </Animated.View>
-            {validationErrors.powerFactor && <Text style={styles.errorText}>{validationErrors.powerFactor}</Text>}
+            {validationErrors.powerFactor && (
+              <Text style={styles.errorText}>{validationErrors.powerFactor}</Text>
+            )}
           </View>
-          
+
           {/* 線種選択 */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
@@ -1152,34 +1248,47 @@ export default function VoltageDropRateCalculator() {
                     styles.wireOption,
                     wireSize === size ? styles.activeWireOption : styles.inactiveWireOption,
                   ]}
-                  onPress={() => setWireSize(size)}
-                >
-                  <Text 
+                  onPress={() => setWireSize(size)}>
+                  <Text
                     style={[
                       styles.wireOptionText,
-                      wireSize === size ? styles.activeWireOptionText : styles.inactiveWireOptionText
-                    ]}
-                  >
+                      wireSize === size
+                        ? styles.activeWireOptionText
+                        : styles.inactiveWireOptionText,
+                    ]}>
                     {size} mm²
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
           </View>
-          
+
           {/* 計算ボタン */}
           <TouchableOpacity
             style={[
               styles.calculateButton,
-              (!reductionFactor || !breakerCurrent || !length || !mcbCurrent || !loadCapacity || !powerFactor) ? styles.disabledButton : {}
+              !reductionFactor ||
+              !breakerCurrent ||
+              !length ||
+              !mcbCurrent ||
+              !loadCapacity ||
+              !powerFactor
+                ? styles.disabledButton
+                : {},
             ]}
-            disabled={!reductionFactor || !breakerCurrent || !length || !mcbCurrent || !loadCapacity || !powerFactor}
-            onPress={calculateVoltageDropRate}
-          >
+            disabled={
+              !reductionFactor ||
+              !breakerCurrent ||
+              !length ||
+              !mcbCurrent ||
+              !loadCapacity ||
+              !powerFactor
+            }
+            onPress={calculateVoltageDropRate}>
             <Text style={styles.calculateButtonText}>電圧降下率を計算</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
-} 
+}

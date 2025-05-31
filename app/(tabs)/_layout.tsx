@@ -17,12 +17,11 @@ export default function TabLayout() {
           backgroundColor: isDarkMode ? '#121212' : '#fff',
         },
         headerTintColor: isDarkMode ? '#fff' : '#000',
-      }}
-    >
+      }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: "計算",
+          title: '計算',
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <Ionicons name="calculator" size={size} color={color} />
           ),
@@ -40,7 +39,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: "設定",
+          title: '設定',
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <Ionicons name="settings" size={size} color={color} />
           ),

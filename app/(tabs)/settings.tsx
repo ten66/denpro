@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, Switch, StyleSheet, TouchableOpacity, Animated, Alert, Linking, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  Switch,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  Alert,
+  Linking,
+  ScrollView,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../_layout';
 import { router } from 'expo-router';
@@ -39,24 +49,22 @@ export default function SettingsScreen() {
         toValue: 0,
         duration: 300,
         useNativeDriver: true,
-      })
+      }),
     ]).start();
-    
+
     toggleTheme();
   };
 
   // 未実装機能用の暫定ハンドラ
   const handleNotYetImplemented = (feature: string) => {
-    Alert.alert(
-      '開発中の機能',
-      `${feature}機能は現在開発中です。今しばらくお待ちください。`,
-      [{ text: 'OK', style: 'default' }]
-    );
+    Alert.alert('開発中の機能', `${feature}機能は現在開発中です。今しばらくお待ちください。`, [
+      { text: 'OK', style: 'default' },
+    ]);
   };
 
   // URLを開くハンドラ
   const handleOpenURL = (url: string) => {
-    Linking.canOpenURL(url).then(supported => {
+    Linking.canOpenURL(url).then((supported) => {
       if (supported) {
         Linking.openURL(url);
       } else {
@@ -67,12 +75,12 @@ export default function SettingsScreen() {
 
   const rotate = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '180deg']
+    outputRange: ['0deg', '180deg'],
   });
 
   const scale = animation.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [1, 1.2, 1]
+    outputRange: [1, 1.2, 1],
   });
 
   // 設定カテゴリ
@@ -93,7 +101,7 @@ export default function SettingsScreen() {
           value: isDarkMode,
           onPress: handleThemeToggle,
         },
-      ]
+      ],
     },
     {
       id: 'legal',
@@ -128,7 +136,7 @@ export default function SettingsScreen() {
           type: 'link',
           onPress: () => router.push('/settings/disclaimer'),
         },
-      ]
+      ],
     },
     {
       id: 'support',
@@ -145,7 +153,7 @@ export default function SettingsScreen() {
           type: 'link',
           onPress: () => handleOpenURL('https://forms.gle/chswttw68dP9XPuR7'),
         },
-      ]
+      ],
     },
   ];
 
@@ -159,51 +167,38 @@ export default function SettingsScreen() {
         key={item.id}
         style={[
           styles.settingItem,
-          { 
+          {
             backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
             borderBottomWidth: isLastItem ? 0 : 0.5,
             borderBottomColor: isDarkMode ? '#333333' : '#EEEEEE',
-          }
+          },
         ]}
         onPress={item.onPress}
-        activeOpacity={0.7}
-      >
-        <View style={[
-          styles.iconContainer,
-          { backgroundColor: `${item.iconColor}20` }
-        ]}>
+        activeOpacity={0.7}>
+        <View style={[styles.iconContainer, { backgroundColor: `${item.iconColor}20` }]}>
           {isAppearanceItem ? (
             <AnimatedIcon
               name={item.icon}
               size={24}
               color={item.iconColor}
               style={{
-                transform: [
-                  { rotate },
-                  { scale }
-                ]
+                transform: [{ rotate }, { scale }],
               }}
             />
           ) : (
             <Ionicons name={item.icon} size={24} color={item.iconColor} />
           )}
         </View>
-        
+
         <View style={styles.contentContainer}>
-          <Text style={[
-            styles.title,
-            { color: isDarkMode ? '#FFFFFF' : '#000000' }
-          ]}>
+          <Text style={[styles.title, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
             {item.title}
           </Text>
-          <Text style={[
-            styles.description,
-            { color: isDarkMode ? '#AAAAAA' : '#666666' }
-          ]}>
+          <Text style={[styles.description, { color: isDarkMode ? '#AAAAAA' : '#666666' }]}>
             {item.description}
           </Text>
         </View>
-        
+
         {item.type === 'toggle' ? (
           <Switch
             value={item.value}
@@ -213,11 +208,7 @@ export default function SettingsScreen() {
             ios_backgroundColor="#3e3e3e"
           />
         ) : (
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={isDarkMode ? '#777777' : '#CCCCCC'}
-          />
+          <Ionicons name="chevron-forward" size={20} color={isDarkMode ? '#777777' : '#CCCCCC'} />
         )}
       </TouchableOpacity>
     );
@@ -227,26 +218,22 @@ export default function SettingsScreen() {
     return (
       <View key={category.id} style={styles.categoryContainer}>
         <View style={styles.categoryHeader}>
-          <View style={[
-            styles.categoryIconContainer,
-            {backgroundColor: `${category.iconColor}20`}
-          ]}>
+          <View
+            style={[styles.categoryIconContainer, { backgroundColor: `${category.iconColor}20` }]}>
             <Ionicons name={category.icon} size={20} color={category.iconColor} />
           </View>
-          <Text style={[
-            styles.categoryTitle,
-            {color: isDarkMode ? '#FFFFFF' : '#000000'}
-          ]}>
+          <Text style={[styles.categoryTitle, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
             {category.title}
           </Text>
         </View>
-        
-        <View style={[
-          styles.categoryItems,
-          {
-            backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
-          }
-        ]}>
+
+        <View
+          style={[
+            styles.categoryItems,
+            {
+              backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
+            },
+          ]}>
           {category.items.map((item, index) => renderItem(item, index, category.items.length))}
         </View>
       </View>
@@ -254,33 +241,21 @@ export default function SettingsScreen() {
   };
 
   return (
-    <View style={[
-      styles.container,
-      { backgroundColor: isDarkMode ? '#121212' : '#F2F2F7' }
-    ]}>
+    <View style={[styles.container, { backgroundColor: isDarkMode ? '#121212' : '#F2F2F7' }]}>
       <View style={styles.header}>
-        <Text style={[
-          styles.headerTitle,
-          { color: isDarkMode ? '#FFFFFF' : '#000000' }
-        ]}>
+        <Text style={[styles.headerTitle, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
           設定
         </Text>
-        <Text style={[
-          styles.headerSubtitle,
-          { color: isDarkMode ? '#AAAAAA' : '#666666' }
-        ]}>
+        <Text style={[styles.headerSubtitle, { color: isDarkMode ? '#AAAAAA' : '#666666' }]}>
           アプリの設定を変更
         </Text>
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.settingsContainer}>
-          {settingCategories.map(renderCategory)}
-        </View>
+        contentContainerStyle={styles.scrollContent}>
+        <View style={styles.settingsContainer}>{settingCategories.map(renderCategory)}</View>
       </ScrollView>
     </View>
   );
@@ -335,7 +310,7 @@ const styles = StyleSheet.create({
   categoryItems: {
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -368,4 +343,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
   },
-}); 
+});
