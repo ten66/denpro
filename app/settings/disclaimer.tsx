@@ -5,10 +5,10 @@ import { useTheme } from '../_layout';
 
 export default function DisclaimerScreen() {
   const { isDarkMode } = useTheme();
-  
+
   const handleOpenContactForm = () => {
     const url = 'https://forms.gle/chswttw68dP9XPuR7';
-    Linking.canOpenURL(url).then(supported => {
+    Linking.canOpenURL(url).then((supported) => {
       if (supported) {
         Linking.openURL(url);
       } else {
@@ -18,10 +18,7 @@ export default function DisclaimerScreen() {
   };
 
   return (
-    <View style={[
-      styles.container,
-      { backgroundColor: isDarkMode ? '#121212' : '#F2F2F7' }
-    ]}>
+    <View style={[styles.container, { backgroundColor: isDarkMode ? '#121212' : '#F2F2F7' }]}>
       <Stack.Screen
         options={{
           title: '免責事項',
@@ -29,47 +26,40 @@ export default function DisclaimerScreen() {
             backgroundColor: isDarkMode ? '#121212' : '#FFFFFF',
           },
           headerTintColor: isDarkMode ? '#FFFFFF' : '#000000',
-          headerBackButtonDisplayMode: "minimal",
+          headerBackButtonDisplayMode: 'minimal',
         }}
       />
-      
+
       <ScrollView style={styles.content}>
         <View style={styles.section}>
-          <Text style={[
-            styles.disclaimerText,
-            { color: isDarkMode ? '#FFFFFF' : '#000000' }
-          ]}>
+          <Text style={[styles.disclaimerText, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
             当コンテンツ・情報におきましては、正確かつ最新の情報を掲載するよう細心の注意を払っておりますが、内容の正確性・安全性・有用性等を保証するものではありません。予告なく情報の修正・削除を行うこともございます。
           </Text>
-          
-          <Text style={[
-            styles.disclaimerText,
-            { color: isDarkMode ? '#FFFFFF' : '#000000' },
-            styles.paragraph
-          ]}>
+
+          <Text
+            style={[
+              styles.disclaimerText,
+              { color: isDarkMode ? '#FFFFFF' : '#000000' },
+              styles.paragraph,
+            ]}>
             万が一、本コンテンツの情報に基づいて生じたトラブルや損害等につきましては、一切の責任を負いかねますので、あらかじめご了承ください。
           </Text>
-          
+
           <View style={styles.paragraph}>
-            <Text style={[
-              styles.disclaimerText,
-              { color: isDarkMode ? '#FFFFFF' : '#000000' }
-            ]}>
+            <Text style={[styles.disclaimerText, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
               内容に関してご不明な点やお気づきの点がございましたら、
             </Text>
             <TouchableOpacity onPress={handleOpenContactForm}>
-              <Text style={[
-                styles.disclaimerText,
-                styles.linkText,
-                { color: isDarkMode ? '#4dabf7' : '#0070f3' }
-              ]}>
+              <Text
+                style={[
+                  styles.disclaimerText,
+                  styles.linkText,
+                  { color: isDarkMode ? '#4dabf7' : '#0070f3' },
+                ]}>
                 お問い合わせフォーム
               </Text>
             </TouchableOpacity>
-            <Text style={[
-              styles.disclaimerText,
-              { color: isDarkMode ? '#FFFFFF' : '#000000' }
-            ]}>
+            <Text style={[styles.disclaimerText, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
               よりお問い合わせいただけますと幸いです。より良い情報提供のため、ご協力をよろしくお願いいたします。
             </Text>
           </View>
@@ -100,5 +90,5 @@ const styles = StyleSheet.create({
   linkText: {
     textDecorationLine: 'underline',
     fontWeight: '600',
-  }
-}); 
+  },
+});

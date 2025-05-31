@@ -1,5 +1,4 @@
-import { Stack } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Stack } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import { createContext, useState, useContext } from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
@@ -27,16 +26,16 @@ export default function RootLayout() {
 
   /** テーマを切り替える */
   const toggleTheme = () => {
-    setIsDarkMode(prev => !prev);
+    setIsDarkMode((prev) => !prev);
   };
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
       <ThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
-        <StatusBar style={isDarkMode ? "light" : "dark"} />
+        <StatusBar style={isDarkMode ? 'light' : 'dark'} />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name='+not-found' />
+          <Stack.Screen name="+not-found" />
         </Stack>
       </ThemeProvider>
     </ThemeContext.Provider>
