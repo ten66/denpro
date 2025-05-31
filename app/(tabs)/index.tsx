@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  View,
-  ScrollView,
-  ColorValue,
-  Animated,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, Text, View, ScrollView, Animated } from 'react-native';
 import { useTheme } from '../_layout';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -105,7 +97,7 @@ export default function CalculationsScreen() {
         }),
       ]),
     ).start();
-  }, []);
+  }, [fadeAnim, pulseAnim, rotateAnim, floatAnim1, floatAnim2]);
 
   // 回転の変換
   const spin = rotateAnim.interpolate({

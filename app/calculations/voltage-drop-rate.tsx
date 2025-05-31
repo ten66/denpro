@@ -9,9 +9,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
-  Dimensions,
-  ToastAndroid,
-  Alert,
 } from 'react-native';
 import { useTheme } from '../_layout';
 import { Stack } from 'expo-router';
@@ -102,16 +99,6 @@ export default function VoltageDropRateCalculator() {
   // 選択した給電方式の情報を取得
   const getSelectedPowerSupply = () => {
     return powerSupplyTypes.find((type) => type.id === powerSupply) || powerSupplyTypes[0];
-  };
-
-  // トースト表示 (iOS対応)
-  const showToast = (message: string) => {
-    if (Platform.OS === 'android') {
-      ToastAndroid.show(message, ToastAndroid.SHORT);
-    } else {
-      // iOSの場合はAlertで代用
-      Alert.alert('情報', message, [{ text: '閉じる' }], { cancelable: true });
-    }
   };
 
   // バリデーションエラーをリセット
@@ -210,7 +197,7 @@ export default function VoltageDropRateCalculator() {
     if (mcbCurrent) {
       validateField('mcbCurrent', mcbCurrent);
     }
-  }, [breakerCurrent]);
+  }, [breakerCurrent, mcbCurrent, validateField]);
 
   // フォームのバリデーション
   const validateForm = (): boolean => {

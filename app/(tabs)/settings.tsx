@@ -55,13 +55,6 @@ export default function SettingsScreen() {
     toggleTheme();
   };
 
-  // 未実装機能用の暫定ハンドラ
-  const handleNotYetImplemented = (feature: string) => {
-    Alert.alert('開発中の機能', `${feature}機能は現在開発中です。今しばらくお待ちください。`, [
-      { text: 'OK', style: 'default' },
-    ]);
-  };
-
   // URLを開くハンドラ
   const handleOpenURL = (url: string) => {
     Linking.canOpenURL(url).then((supported) => {
