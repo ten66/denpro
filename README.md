@@ -1,50 +1,57 @@
-# Welcome to your Expo app 👋
+# denpro - 電気計算ツール ⚡
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+電気工事の計算を簡単に行えるReact Nativeアプリです。
+電気技術者や電気工事士の方々が現場で素早く計算を行えるよう設計されています。
 
-## Get started
+## 🎯 主な機能
 
-1. Install dependencies
+### 基本計算
 
-   ```bash
-   npm install
-   ```
+- **電圧降下計算**: 電線の長さ、電流、断面積から電圧降下を算出
+- **電線断面積計算**: 必要な電線の断面積を算出
 
-2. Start the app
+### 応用計算
 
-   ```bash
-    npx expo start
-   ```
+- **電圧降下率計算**: 電圧降下率を詳細に計算
 
-In the output, you'll find options to open the app in a
+## 📱 対応プラットフォーム
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- iOS
+- Android
+- Web
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 📲 アプリをダウンロード
 
-## Get a fresh project
+<div align="center">
+  <img src="assets/images/denpro-qr.png" alt="denpro QRコード" width="200"/>
+  <p><strong>QRコードをスキャンしてアプリをダウンロード</strong></p>
+</div>
 
-When you're ready, run:
+## 🎨 特徴
 
-```bash
-npm run reset-project
-```
+- **ダークモード対応**: システム設定に応じて自動切り替え
+- **直感的なUI**: 美しいグラデーションとアニメーション
+- **レスポンシブデザイン**: 様々な画面サイズに対応
+- **オフライン対応**: インターネット接続なしでも利用可能
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🛠 技術スタック
 
-## Learn more
+- React Native
+- Expo
+- TypeScript
+- Expo Router (ファイルベースルーティング)
+- React Native Reanimated (アニメーション)
+- Expo Linear Gradient
 
-To learn more about developing your project with Expo, look at the following resources:
+## 📄 ライセンス
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+このプロジェクトはプライベートプロジェクトです。
 
-## Join the community
+## 📚 使い方
 
-Join our community of developers creating universal apps.
+1. アプリを起動
+2. 基本計算または応用計算のタブを選択
+3. 使いたい計算ツールをタップ
+4. 必要な値を入力して計算実行
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+電気工事や設計業務での計算をより効率的に行うことができます。
