@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -107,9 +107,9 @@ export default function VoltageDropRateCalculator() {
   };
 
   // 特定のフィールドをバリデーション
-  const validateField = useCallback(
-    (field: string, value: string) => {
-      const errors: { [key: string]: string } = { ...validationErrors };
+  const validateField = (field: string, value: string) => {
+    setValidationErrors((currentErrors) => {
+      const errors: { [key: string]: string } = { ...currentErrors };
 
       switch (field) {
         case 'reductionFactor':
@@ -186,18 +186,9 @@ export default function VoltageDropRateCalculator() {
           break;
       }
 
-      setValidationErrors(errors);
-    },
-    [validationErrors, breakerCurrent],
-  );
-
-  // useEffectを追加
-  useEffect(() => {
-    // breakerCurrentが変更されたとき、mcbCurrentのバリデーションを再実行
-    if (mcbCurrent) {
-      validateField('mcbCurrent', mcbCurrent);
-    }
-  }, [breakerCurrent, mcbCurrent, validateField]);
+      return errors;
+    });
+  };
 
   // フォームのバリデーション
   const validateForm = (): boolean => {
@@ -1033,10 +1024,6 @@ export default function VoltageDropRateCalculator() {
                 onChangeText={(text) => {
                   setBreakerCurrent(text);
                   validateField('breakerCurrent', text);
-                  // 主幹MCB電流も再検証（依存関係があるため）
-                  if (mcbCurrent) {
-                    validateField('mcbCurrent', mcbCurrent);
-                  }
                 }}
                 onEndEditing={(e) => {
                   // 入力完了時に小数点以下を切り捨て
