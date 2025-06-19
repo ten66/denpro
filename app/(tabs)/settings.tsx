@@ -9,6 +9,7 @@ import {
   Alert,
   Linking,
   ScrollView,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../_layout';
@@ -36,6 +37,8 @@ type SettingCategory = {
 export default function SettingsScreen() {
   const { isDarkMode, toggleTheme } = useTheme();
   const [animation] = useState(new Animated.Value(0));
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(0);
 
   // テーマ変更時のアニメーション
   const handleThemeToggle = () => {
@@ -66,6 +69,55 @@ export default function SettingsScreen() {
     });
   };
 
+  // レビュー評価ハンドラ
+  const handleRatingPress = () => {
+    setShowRatingModal(true);
+  };
+
+  // 評価送信ハンドラ
+  const handleRatingSubmit = () => {
+    setShowRatingModal(false);
+
+    if (selectedRating >= 4) {
+      // 4星以上の場合はApp Storeレビューへ
+      Alert.alert(
+        'レビューをお願いします',
+        'このアプリを気に入っていただけたようで嬉しいです！App Storeでレビューを書いていただけませんか？',
+        [
+          { text: 'キャンセル', style: 'cancel' },
+          {
+            text: 'レビューを書く',
+            onPress: () =>
+              handleOpenURL(
+                'https://itunes.apple.com/jp/app/id6746265873?mt=8&action=write-review',
+              ),
+          },
+        ],
+      );
+    } else {
+      // 3星以下の場合はお問い合わせへ
+      Alert.alert(
+        'フィードバックをお聞かせください',
+        'アプリを改善するため、お問い合わせフォームからご意見をお聞かせください。',
+        [
+          { text: 'キャンセル', style: 'cancel' },
+          {
+            text: 'お問い合わせ',
+            onPress: () => handleOpenURL('https://forms.gle/chswttw68dP9XPuR7'),
+          },
+        ],
+      );
+    }
+
+    setSelectedRating(0);
+  };
+
+  // 評価モーダルを閉じる
+  const handleCloseRatingModal = () => {
+    setShowRatingModal(false);
+    setSelectedRating(0);
+  };
+
   const rotate = animation.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '180deg'],
@@ -93,6 +145,40 @@ export default function SettingsScreen() {
           type: 'toggle',
           value: isDarkMode,
           onPress: handleThemeToggle,
+        },
+      ],
+    },
+    {
+      id: 'review',
+      title: 'アプリの評価',
+      icon: 'star',
+      iconColor: '#FFD700',
+      items: [
+        {
+          id: 'rate-app',
+          title: 'アプリを評価',
+          description: 'このアプリの評価をお聞かせください',
+          icon: 'star-outline',
+          iconColor: '#FFD700',
+          type: 'link',
+          onPress: handleRatingPress,
+        },
+      ],
+    },
+    {
+      id: 'support',
+      title: 'サポート・情報',
+      icon: 'help-buoy',
+      iconColor: '#2196F3',
+      items: [
+        {
+          id: 'contact',
+          title: 'お問い合わせ',
+          description: 'バグ報告や機能リクエスト',
+          icon: 'mail',
+          iconColor: '#2196F3',
+          type: 'link',
+          onPress: () => handleOpenURL('https://forms.gle/chswttw68dP9XPuR7'),
         },
       ],
     },
@@ -128,23 +214,6 @@ export default function SettingsScreen() {
           iconColor: '#FF9800',
           type: 'link',
           onPress: () => router.push('/settings/disclaimer'),
-        },
-      ],
-    },
-    {
-      id: 'support',
-      title: 'サポート・情報',
-      icon: 'help-buoy',
-      iconColor: '#2196F3',
-      items: [
-        {
-          id: 'contact',
-          title: 'お問い合わせ',
-          description: 'バグ報告や機能リクエスト',
-          icon: 'mail',
-          iconColor: '#2196F3',
-          type: 'link',
-          onPress: () => handleOpenURL('https://forms.gle/chswttw68dP9XPuR7'),
         },
       ],
     },
@@ -250,6 +319,69 @@ export default function SettingsScreen() {
         contentContainerStyle={styles.scrollContent}>
         <View style={styles.settingsContainer}>{settingCategories.map(renderCategory)}</View>
       </ScrollView>
+
+      {/* 評価モーダル */}
+      <Modal
+        visible={showRatingModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={handleCloseRatingModal}>
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContainer,
+              { backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF' },
+            ]}>
+            <Text style={[styles.modalTitle, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
+              アプリの評価
+            </Text>
+            <Text style={[styles.modalDescription, { color: isDarkMode ? '#AAAAAA' : '#666666' }]}>
+              このアプリはいかがでしたか？
+            </Text>
+
+            <View style={styles.starsContainer}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <TouchableOpacity
+                  key={star}
+                  onPress={() => setSelectedRating(star)}
+                  style={styles.starButton}>
+                  <Ionicons
+                    name={selectedRating >= star ? 'star' : 'star-outline'}
+                    size={40}
+                    color={selectedRating >= star ? '#FFD700' : isDarkMode ? '#666666' : '#CCCCCC'}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  styles.cancelButton,
+                  { borderColor: isDarkMode ? '#333333' : '#CCCCCC' },
+                ]}
+                onPress={handleCloseRatingModal}>
+                <Text
+                  style={[styles.cancelButtonText, { color: isDarkMode ? '#AAAAAA' : '#666666' }]}>
+                  キャンセル
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  styles.submitButton,
+                  { opacity: selectedRating > 0 ? 1 : 0.5 },
+                ]}
+                onPress={handleRatingSubmit}
+                disabled={selectedRating === 0}>
+                <Text style={styles.submitButtonText}>決定</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -335,5 +467,70 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     marginTop: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '85%',
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 5.84,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  modalDescription: {
+    fontSize: 16,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  starsContainer: {
+    flexDirection: 'row',
+    marginBottom: 32,
+  },
+  starButton: {
+    marginHorizontal: 8,
+    padding: 4,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginHorizontal: 6,
+  },
+  cancelButton: {
+    borderWidth: 1,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  submitButton: {
+    backgroundColor: '#2196F3',
+  },
+  submitButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });
