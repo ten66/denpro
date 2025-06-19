@@ -622,7 +622,8 @@ export default function CalculationsScreen() {
               <Text style={styles.comingSoonTitle}>開発中</Text>
               <Text style={styles.comingSoonText}>
                 他の計算機能も順次追加していきます。{'\n'}
-                ご期待ください！
+                また、新規機能のご要望は{'\n'}
+                設定画面のお問い合わせからお送りください！
               </Text>
 
               <View style={styles.dotContainer}>
